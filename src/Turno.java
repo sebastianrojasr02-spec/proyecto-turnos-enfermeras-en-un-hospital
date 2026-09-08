@@ -10,6 +10,14 @@ public class Turno {
     private String tipo;  
     private String estado; 
 
+    // Constructor por defecto
+    public Turno() {
+        this.idTurno = "Sin ID";
+        this.fecha = "00-00-0000";
+        this.tipo = "Sin asignar";
+        this.estado = "Pendiente";
+    }
+
     public Turno(String idTurno, String fecha, String tipo, String estado) {
         this.idTurno = idTurno;
         this.fecha = fecha;

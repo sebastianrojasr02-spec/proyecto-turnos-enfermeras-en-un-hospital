@@ -4,6 +4,13 @@ public abstract class Trabajador {
     private String rut;
     private String nombre;
 
+    // 1. Constructor por defecto 
+    public Trabajador() {
+        this.rut = "Sin RUT";
+        this.nombre = "Sin Nombre";
+    }
+
+    // 2. Constructor con parámetros
     public Trabajador(String rut, String nombre) {
         this.rut = rut;
         this.nombre = nombre;
@@ -15,6 +22,5 @@ public abstract class Trabajador {
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
 
-    // Método abstracto que forza la sobreescritura (SIA-6)
     public abstract String obtenerIdentificacion();
 }
