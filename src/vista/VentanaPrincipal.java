@@ -111,10 +111,6 @@ public class VentanaPrincipal extends JFrame {
                 )
         );
 
-        // -----------------------------------------------------
-        // FORMULARIO
-        // -----------------------------------------------------
-
         JPanel formulario = new JPanel(
                 new GridLayout(3, 2, 8, 8)
         );
@@ -145,9 +141,9 @@ public class VentanaPrincipal extends JFrame {
                 BorderLayout.NORTH
         );
 
-        // -----------------------------------------------------
-        // TABLA
-        // -----------------------------------------------------
+        // =====================================================
+        // TABLA DE ENFERMERAS
+        // =====================================================
 
         modeloTablaEnfermeras =
                 new DefaultTableModel(
@@ -219,9 +215,9 @@ public class VentanaPrincipal extends JFrame {
                 BorderLayout.CENTER
         );
 
-        // -----------------------------------------------------
+        // =====================================================
         // BOTONES
-        // -----------------------------------------------------
+        // =====================================================
 
         JPanel botones = new JPanel();
 
@@ -510,7 +506,8 @@ public class VentanaPrincipal extends JFrame {
                         new String[]{
                                 "PENDIENTE",
                                 "CONFIRMADO",
-                                "CANCELADO"
+                                "CANCELADO",
+                                "COMPLETADO"
                         }
                 );
 
@@ -521,9 +518,9 @@ public class VentanaPrincipal extends JFrame {
                 BorderLayout.NORTH
         );
 
-        // -----------------------------------------------------
+        // =====================================================
         // AREA DE INFORMACION
-        // -----------------------------------------------------
+        // =====================================================
 
         areaTurnos =
                 new JTextArea();
@@ -543,9 +540,9 @@ public class VentanaPrincipal extends JFrame {
                 BorderLayout.CENTER
         );
 
-        // -----------------------------------------------------
+        // =====================================================
         // BOTONES
-        // -----------------------------------------------------
+        // =====================================================
 
         JPanel botones =
                 new JPanel();
@@ -1200,6 +1197,10 @@ public class VentanaPrincipal extends JFrame {
 
         if (estado.equals("CANCELADO")) {
             return EstadoTurno.CANCELADO;
+        }
+
+        if (estado.equals("COMPLETADO")) {
+            return EstadoTurno.COMPLETADO;
         }
 
         return EstadoTurno.PENDIENTE;
