@@ -1,0 +1,3 @@
+rut,nombre,especialidad,idTurno,fecha,tipo,estado,horaInicio,horaFin,sector,observaciones
+"22222222-2","Bárbara Silva","Pediatría","T002","11-09-2026","NOCHE","PENDIENTE","22:00","08:00","Pediatría","Turno nocturno"
+"11111111-1","Ana Rojas","Urgencias","T001","10-09-2026","MANANA","CONFIRMADO","08:00","16:00","Urgencias","Turno normal"

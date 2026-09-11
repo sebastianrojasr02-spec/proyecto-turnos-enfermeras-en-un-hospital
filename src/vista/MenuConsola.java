@@ -1,7 +1,10 @@
 package vista;
 
 import controlador.GestorHospital;
-import modelo.*;
+import modelo.Enfermera;
+import modelo.Turno;
+import modelo.TipoTurno;
+import modelo.EstadoTurno;
 
 import java.util.List;
 import java.util.Scanner;
@@ -12,42 +15,60 @@ public class MenuConsola {
     private Scanner scanner;
 
     public MenuConsola(GestorHospital gestor) {
+
         this.gestor = gestor;
         this.scanner = new Scanner(System.in);
     }
 
     public void iniciar() {
+
         int opcion = -1;
 
         do {
-            System.out.println("\n==================================");
+
+            System.out.println();
+            System.out.println("==================================");
             System.out.println("    GESTOR DE TURNOS HOSPITAL");
             System.out.println("==================================");
-            System.out.println("1. Registrar Enfermera");
-            System.out.println("2. Listar Enfermeras");
+            System.out.println();
+            System.out.println("----- ENFERMERAS -----");
+            System.out.println("1. Agregar Enfermera");
+            System.out.println("2. Mostrar Enfermeras");
             System.out.println("3. Buscar Enfermera");
             System.out.println("4. Modificar Enfermera");
             System.out.println("5. Eliminar Enfermera");
-            System.out.println("6. Asignar Turno");
-            System.out.println("7. Buscar Turno");
-            System.out.println("8. Modificar Turno");
-            System.out.println("9. Eliminar Turno");
-            System.out.println("10. Buscar por Especialidad");
-            System.out.println("11. Buscar Enfermeras Disponibles");
+            System.out.println();
+            System.out.println("----- TURNOS -----");
+            System.out.println("6. Agregar Turno");
+            System.out.println("7. Mostrar Turnos");
+            System.out.println("8. Buscar Turno");
+            System.out.println("9. Modificar Turno");
+            System.out.println("10. Eliminar Turno");
+            System.out.println();
+            System.out.println("----- FUNCIONALIDADES -----");
+            System.out.println("11. Buscar por Especialidad");
+            System.out.println("12. Buscar Enfermeras Disponibles");
+            System.out.println();
             System.out.println("0. Salir");
+            System.out.println();
+
             System.out.print("Seleccione una opción: ");
 
             try {
-                opcion = Integer.parseInt(scanner.nextLine());
+
+                opcion =
+                        Integer.parseInt(
+                                scanner.nextLine()
+                        );
 
                 switch (opcion) {
 
                     case 1:
-                        registrarEnfermera();
+                        agregarEnfermera();
                         break;
 
                     case 2:
-                        listarEnfermeras();
+                        mostrarEnfermeras();
                         break;
 
                     case 3:
@@ -63,45 +84,63 @@ public class MenuConsola {
                         break;
 
                     case 6:
-                        asignarTurno();
+                        agregarTurno();
                         break;
 
                     case 7:
-                        buscarTurno();
+                        mostrarTurnos();
                         break;
 
                     case 8:
-                        modificarTurno();
+                        buscarTurno();
                         break;
 
                     case 9:
-                        eliminarTurno();
+                        modificarTurno();
                         break;
 
                     case 10:
-                        buscarPorEspecialidad();
+                        eliminarTurno();
                         break;
 
                     case 11:
+                        buscarPorEspecialidad();
+                        break;
+
+                    case 12:
                         buscarDisponibles();
                         break;
 
                     case 0:
-                        System.out.println("Saliendo del sistema...");
+                        System.out.println(
+                                "Saliendo del sistema..."
+                        );
                         break;
 
                     default:
-                        System.out.println("Opción no válida.");
+                        System.out.println(
+                                "Opción no válida."
+                        );
                 }
 
             } catch (NumberFormatException e) {
-                System.out.println("Error: Ingrese un número válido.");
+
+                System.out.println(
+                        "Error: debe ingresar un número."
+                );
             }
 
         } while (opcion != 0);
     }
 
-    private void registrarEnfermera() {
+    // =====================================================
+    // ENFERMERAS
+    // =====================================================
+
+    private void agregarEnfermera() {
+
+        System.out.println();
+        System.out.println("--- AGREGAR ENFERMERA ---");
 
         System.out.print("RUT: ");
         String rut = scanner.nextLine();
@@ -112,226 +151,504 @@ public class MenuConsola {
         System.out.print("Especialidad: ");
         String especialidad = scanner.nextLine();
 
-        if (gestor.agregarEnfermera(rut, nombre, especialidad)) {
-            System.out.println("Enfermera registrada correctamente.");
+        if (gestor.agregarEnfermera(
+                rut,
+                nombre,
+                especialidad
+        )) {
+
+            System.out.println(
+                    "Enfermera agregada correctamente."
+            );
+
         } else {
-            System.out.println("Error: Ya existe una enfermera con ese RUT.");
+
+            System.out.println(
+                    "Ya existe una enfermera con ese RUT."
+            );
         }
     }
 
-    private void listarEnfermeras() {
+    private void mostrarEnfermeras() {
 
-        System.out.println("\n--- LISTA DE ENFERMERAS ---");
+        System.out.println();
+        System.out.println("--- ENFERMERAS ---");
 
-        for (Enfermera enf : gestor.getMapaEnfermeras().values()) {
+        if (gestor.getMapaEnfermeras().isEmpty()) {
 
             System.out.println(
-                    enf.obtenerIdentificacion()
-                    + " | Turnos: "
-                    + enf.getTurnosAsignados().size()
+                    "No existen enfermeras registradas."
+            );
+
+            return;
+        }
+
+        for (Enfermera enfermera :
+                gestor.getMapaEnfermeras().values()) {
+
+            System.out.println(
+                    "RUT: "
+                    + enfermera.getRut()
+                    + " | Nombre: "
+                    + enfermera.getNombre()
+                    + " | Especialidad: "
+                    + enfermera.getEspecialidad()
             );
         }
     }
 
     private void buscarEnfermera() {
 
-        System.out.print("RUT de la enfermera: ");
+        System.out.println();
+        System.out.println("--- BUSCAR ENFERMERA ---");
+
+        System.out.print("RUT: ");
         String rut = scanner.nextLine();
 
-        Enfermera enfermera = gestor.buscarEnfermera(rut);
+        Enfermera enfermera =
+                gestor.buscarEnfermera(rut);
 
         if (enfermera != null) {
 
-            System.out.println("\n--- ENFERMERA ENCONTRADA ---");
-            System.out.println("RUT: " + enfermera.getRut());
-            System.out.println("Nombre: " + enfermera.getNombre());
-            System.out.println("Especialidad: " + enfermera.getEspecialidad());
-            System.out.println("Turnos: " + enfermera.getTurnosAsignados().size());
+            System.out.println(
+                    "Enfermera encontrada:"
+            );
+
+            System.out.println(
+                    "RUT: "
+                    + enfermera.getRut()
+            );
+
+            System.out.println(
+                    "Nombre: "
+                    + enfermera.getNombre()
+            );
+
+            System.out.println(
+                    "Especialidad: "
+                    + enfermera.getEspecialidad()
+            );
 
         } else {
 
-            System.out.println("No se encontró una enfermera con ese RUT.");
+            System.out.println(
+                    "No se encontró la enfermera."
+            );
         }
     }
 
     private void modificarEnfermera() {
 
-        System.out.print("RUT de la enfermera: ");
+        System.out.println();
+        System.out.println("--- MODIFICAR ENFERMERA ---");
+
+        System.out.print("RUT: ");
         String rut = scanner.nextLine();
 
-        Enfermera enfermera = gestor.buscarEnfermera(rut);
+        Enfermera enfermera =
+                gestor.buscarEnfermera(rut);
 
         if (enfermera == null) {
-            System.out.println("No se encontró la enfermera.");
+
+            System.out.println(
+                    "No se encontró la enfermera."
+            );
+
             return;
         }
 
-        System.out.print("Nuevo nombre: ");
-        String nombre = scanner.nextLine();
+        System.out.print(
+                "Nuevo nombre: "
+        );
 
-        System.out.print("Nueva especialidad: ");
-        String especialidad = scanner.nextLine();
+        String nombre =
+                scanner.nextLine();
 
-        if (gestor.modificarEnfermera(rut, nombre, especialidad)) {
-            System.out.println("Enfermera modificada correctamente.");
+        System.out.print(
+                "Nueva especialidad: "
+        );
+
+        String especialidad =
+                scanner.nextLine();
+
+        if (gestor.modificarEnfermera(
+                rut,
+                nombre,
+                especialidad
+        )) {
+
+            System.out.println(
+                    "Enfermera modificada correctamente."
+            );
+
         } else {
-            System.out.println("No se pudo modificar la enfermera.");
+
+            System.out.println(
+                    "No se pudo modificar la enfermera."
+            );
         }
     }
 
     private void eliminarEnfermera() {
 
-        System.out.print("RUT de la enfermera a eliminar: ");
+        System.out.println();
+        System.out.println("--- ELIMINAR ENFERMERA ---");
+
+        System.out.print("RUT: ");
         String rut = scanner.nextLine();
 
         if (gestor.eliminarEnfermera(rut)) {
-            System.out.println("Enfermera eliminada exitosamente.");
+
+            System.out.println(
+                    "Enfermera eliminada correctamente."
+            );
+
         } else {
-            System.out.println("No se encontró la enfermera.");
+
+            System.out.println(
+                    "No se encontró la enfermera."
+            );
         }
     }
 
-    private void asignarTurno() {
+    // =====================================================
+    // TURNOS
+    // =====================================================
 
-        System.out.print("RUT de la Enfermera: ");
-        String rut = scanner.nextLine();
+    private void agregarTurno() {
 
-        Enfermera enf = gestor.buscarEnfermera(rut);
+        System.out.println();
+        System.out.println("--- AGREGAR TURNO ---");
 
-        if (enf == null) {
-            System.out.println("Error: Enfermera no encontrada.");
+        System.out.print(
+                "RUT de la enfermera: "
+        );
+
+        String rut =
+                scanner.nextLine();
+
+        Enfermera enfermera =
+                gestor.buscarEnfermera(rut);
+
+        if (enfermera == null) {
+
+            System.out.println(
+                    "No se encontró la enfermera."
+            );
+
             return;
         }
 
-        System.out.print("ID del Turno: ");
-        String idTurno = scanner.nextLine();
+        System.out.print(
+                "ID del turno: "
+        );
 
-        System.out.print("Fecha (DD-MM-AAAA): ");
-        String fecha = scanner.nextLine();
+        String idTurno =
+                scanner.nextLine();
 
-        System.out.print("Tipo (Manana / Tarde / Noche): ");
-        String tipo = scanner.nextLine();
+        System.out.print(
+                "Fecha (DD-MM-AAAA): "
+        );
 
-        enf.agregarTurno(idTurno, fecha, tipo);
-        gestor.guardarDatos();
+        String fecha =
+                scanner.nextLine();
 
-        System.out.println("Turno asignado correctamente.");
+        System.out.print(
+                "Tipo (MANANA, TARDE, NOCHE): "
+        );
+
+        String tipo =
+                scanner.nextLine();
+
+        enfermera.agregarTurno(
+                idTurno,
+                fecha,
+                tipo
+        );
+
+        System.out.println(
+                "Turno agregado correctamente."
+        );
+    }
+
+    private void mostrarTurnos() {
+
+        System.out.println();
+        System.out.println("--- TURNOS ---");
+
+        boolean hayTurnos = false;
+
+        for (Enfermera enfermera :
+                gestor.getMapaEnfermeras().values()) {
+
+            for (Turno turno :
+                    enfermera.getTurnosAsignados()) {
+
+                hayTurnos = true;
+
+                System.out.println(
+                        "Enfermera: "
+                        + enfermera.getNombre()
+                        + " | RUT: "
+                        + enfermera.getRut()
+                );
+
+                System.out.println(
+                        "Turno: "
+                        + turno
+                );
+
+                System.out.println();
+            }
+        }
+
+        if (!hayTurnos) {
+
+            System.out.println(
+                    "No existen turnos registrados."
+            );
+        }
     }
 
     private void buscarTurno() {
 
-        System.out.print("RUT de la enfermera: ");
-        String rut = scanner.nextLine();
+        System.out.println();
+        System.out.println("--- BUSCAR TURNO ---");
 
-        System.out.print("ID del turno: ");
-        String idTurno = scanner.nextLine();
+        System.out.print(
+                "RUT de la enfermera: "
+        );
 
-        Turno turno = gestor.buscarTurnoDeEnfermera(rut, idTurno);
+        String rut =
+                scanner.nextLine();
+
+        System.out.print(
+                "ID del turno: "
+        );
+
+        String idTurno =
+                scanner.nextLine();
+
+        Turno turno =
+                gestor.buscarTurnoDeEnfermera(
+                        rut,
+                        idTurno
+                );
 
         if (turno != null) {
 
-            System.out.println("\n--- TURNO ENCONTRADO ---");
-            System.out.println(turno);
+            System.out.println(
+                    "Turno encontrado:"
+            );
+
+            System.out.println(
+                    turno
+            );
 
         } else {
 
-            System.out.println("No se encontró el turno.");
+            System.out.println(
+                    "No se encontró el turno."
+            );
         }
     }
 
     private void modificarTurno() {
 
-        System.out.print("RUT de la enfermera: ");
-        String rut = scanner.nextLine();
+        System.out.println();
+        System.out.println("--- MODIFICAR TURNO ---");
 
-        System.out.print("ID del turno: ");
-        String idTurno = scanner.nextLine();
+        System.out.print(
+                "RUT de la enfermera: "
+        );
 
-        Turno turno = gestor.buscarTurnoDeEnfermera(rut, idTurno);
+        String rut =
+                scanner.nextLine();
+
+        System.out.print(
+                "ID del turno: "
+        );
+
+        String idTurno =
+                scanner.nextLine();
+
+        Turno turno =
+                gestor.buscarTurnoDeEnfermera(
+                        rut,
+                        idTurno
+                );
 
         if (turno == null) {
-            System.out.println("No se encontró el turno.");
+
+            System.out.println(
+                    "No se encontró el turno."
+            );
+
             return;
         }
 
-        System.out.print("Nueva fecha: ");
-        String fecha = scanner.nextLine();
+        System.out.print(
+                "Nueva fecha: "
+        );
 
-        System.out.print("Nuevo tipo (Manana / Tarde / Noche): ");
-        String tipoTexto = scanner.nextLine();
+        String fecha =
+                scanner.nextLine();
 
-        System.out.print("Nuevo estado (PENDIENTE / CONFIRMADO / CANCELADO / COMPLETADO): ");
-        String estadoTexto = scanner.nextLine();
+        System.out.print(
+                "Nuevo tipo (MANANA, TARDE, NOCHE): "
+        );
+
+        String tipoTexto =
+                scanner.nextLine();
+
+        System.out.print(
+                "Nuevo estado (PENDIENTE, CONFIRMADO, "
+                + "CANCELADO, COMPLETADO): "
+        );
+
+        String estadoTexto =
+                scanner.nextLine();
 
         try {
 
-            TipoTurno tipo = TipoTurno.valueOf(tipoTexto.toUpperCase());
-            EstadoTurno estado = EstadoTurno.valueOf(estadoTexto.toUpperCase());
+            TipoTurno tipo =
+                    TipoTurno.valueOf(
+                            tipoTexto.toUpperCase()
+                    );
+
+            EstadoTurno estado =
+                    EstadoTurno.valueOf(
+                            estadoTexto.toUpperCase()
+                    );
 
             if (gestor.modificarTurno(
                     rut,
                     idTurno,
                     fecha,
                     tipo,
-                    estado)) {
+                    estado
+            )) {
 
-                System.out.println("Turno modificado correctamente.");
+                System.out.println(
+                        "Turno modificado correctamente."
+                );
 
             } else {
 
-                System.out.println("No se pudo modificar el turno.");
+                System.out.println(
+                        "No se pudo modificar el turno."
+                );
             }
 
         } catch (IllegalArgumentException e) {
 
-            System.out.println("Tipo o estado no válido.");
+            System.out.println(
+                    "Tipo o estado no válido."
+            );
         }
     }
 
     private void eliminarTurno() {
 
-        System.out.print("RUT de la enfermera: ");
-        String rut = scanner.nextLine();
+        System.out.println();
+        System.out.println("--- ELIMINAR TURNO ---");
 
-        System.out.print("ID del turno: ");
-        String idTurno = scanner.nextLine();
+        System.out.print(
+                "RUT de la enfermera: "
+        );
 
-        if (gestor.eliminarTurno(rut, idTurno)) {
+        String rut =
+                scanner.nextLine();
 
-            System.out.println("Turno eliminado correctamente.");
+        System.out.print(
+                "ID del turno: "
+        );
+
+        String idTurno =
+                scanner.nextLine();
+
+        if (gestor.eliminarTurno(
+                rut,
+                idTurno
+        )) {
+
+            System.out.println(
+                    "Turno eliminado correctamente."
+            );
 
         } else {
 
-            System.out.println("No se encontró el turno.");
+            System.out.println(
+                    "No se encontró el turno."
+            );
         }
     }
 
+    // =====================================================
+    // SIA-9
+    // =====================================================
+
     private void buscarPorEspecialidad() {
 
-        System.out.print("Especialidad: ");
-        String especialidad = scanner.nextLine();
+        System.out.println();
+        System.out.println(
+                "--- BUSCAR POR ESPECIALIDAD ---"
+        );
 
-        List<Enfermera> lista =
-                gestor.buscarPorEspecialidad(especialidad);
+        System.out.print(
+                "Especialidad: "
+        );
 
-        System.out.println("\n--- RESULTADOS ---");
+        String especialidad =
+                scanner.nextLine();
 
-        if (lista.isEmpty()) {
-            System.out.println("No se encontraron enfermeras.");
+        List<Enfermera> resultado =
+                gestor.buscarPorEspecialidad(
+                        especialidad
+                );
+
+        if (resultado.isEmpty()) {
+
+            System.out.println(
+                    "No se encontraron enfermeras."
+            );
+
+            return;
         }
 
-        for (Enfermera enfermera : lista) {
-            System.out.println(enfermera.obtenerIdentificacion());
+        System.out.println(
+                "Enfermeras encontradas:"
+        );
+
+        for (Enfermera enfermera :
+                resultado) {
+
+            System.out.println(
+                    enfermera.obtenerIdentificacion()
+            );
         }
     }
 
     private void buscarDisponibles() {
 
-        System.out.print("Especialidad: ");
-        String especialidad = scanner.nextLine();
+        System.out.println();
+        System.out.println(
+                "--- ENFERMERAS DISPONIBLES ---"
+        );
 
-        System.out.print("Fecha solicitada (DD-MM-AAAA): ");
-        String fecha = scanner.nextLine();
+        System.out.print(
+                "Especialidad: "
+        );
+
+        String especialidad =
+                scanner.nextLine();
+
+        System.out.print(
+                "Fecha (DD-MM-AAAA): "
+        );
+
+        String fecha =
+                scanner.nextLine();
 
         List<Enfermera> disponibles =
                 gestor.buscarEnfermerasDisponibles(
@@ -339,14 +656,25 @@ public class MenuConsola {
                         fecha
                 );
 
-        System.out.println("\n--- ENFERMERAS DISPONIBLES ---");
-
         if (disponibles.isEmpty()) {
-            System.out.println("No hay enfermeras disponibles.");
+
+            System.out.println(
+                    "No hay enfermeras disponibles."
+            );
+
+            return;
         }
 
-        for (Enfermera enfermera : disponibles) {
-            System.out.println(enfermera.obtenerIdentificacion());
+        System.out.println(
+                "Enfermeras disponibles:"
+        );
+
+        for (Enfermera enfermera :
+                disponibles) {
+
+            System.out.println(
+                    enfermera.obtenerIdentificacion()
+            );
         }
     }
 }

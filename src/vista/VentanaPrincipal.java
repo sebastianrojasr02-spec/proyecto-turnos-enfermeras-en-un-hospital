@@ -7,27 +7,15 @@ import modelo.TipoTurno;
 import modelo.EstadoTurno;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
 public class VentanaPrincipal extends JFrame {
 
     private GestorHospital gestor;
 
-    // =========================================================
-    // ENFERMERAS
-    // =========================================================
-
     private JTextField txtRut;
     private JTextField txtNombre;
     private JTextField txtEspecialidad;
-
-    private JTable tablaEnfermeras;
-    private DefaultTableModel modeloTablaEnfermeras;
-
-    // =========================================================
-    // TURNOS
-    // =========================================================
 
     private JTextField txtRutTurno;
     private JTextField txtIdTurno;
@@ -36,84 +24,129 @@ public class VentanaPrincipal extends JFrame {
     private JComboBox<String> cmbTipoTurno;
     private JComboBox<String> cmbEstadoTurno;
 
-    private JTextArea areaTurnos;
-
-    // =========================================================
-    // CONSULTAS
-    // =========================================================
-
-    private JTextField txtEspecialidadConsulta;
-    private JTextArea areaConsulta;
-
-    // =========================================================
-    // DISPONIBILIDAD
-    // =========================================================
-
-    private JTextField txtEspecialidadDisponible;
-    private JTextField txtFechaDisponible;
-
-    private JTable tablaDisponibles;
-    private DefaultTableModel modeloTablaDisponibles;
-
-    // =========================================================
-    // CONSTRUCTOR
-    // =========================================================
+    private JTextArea areaResultados;
 
     public VentanaPrincipal(GestorHospital gestor) {
 
         this.gestor = gestor;
 
-        setTitle("Sistema de Gestión Hospitalaria - SIA");
-        setSize(1000, 650);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setTitle("Sistema de Gestión Hospitalaria");
+
+        setSize(
+                800,
+                650
+        );
+
         setLocationRelativeTo(null);
 
-        JTabbedPane pestanas = new JTabbedPane();
+        setDefaultCloseOperation(
+                JFrame.EXIT_ON_CLOSE
+        );
 
-        pestanas.addTab(
+        inicializarComponentes();
+    }
+
+    private void inicializarComponentes() {
+
+        setLayout(
+                new BorderLayout()
+        );
+
+        JTabbedPane pestañas =
+                new JTabbedPane();
+
+        pestañas.addTab(
                 "Enfermeras",
                 crearPanelEnfermeras()
         );
 
-        pestanas.addTab(
+        pestañas.addTab(
                 "Turnos",
                 crearPanelTurnos()
         );
 
-        pestanas.addTab(
-                "Consultas",
-                crearPanelConsultas()
+        pestañas.addTab(
+                "Búsquedas",
+                crearPanelBusquedas()
         );
 
-        pestanas.addTab(
-                "Disponibilidad",
-                crearPanelDisponibilidad()
+        add(
+                pestañas,
+                BorderLayout.CENTER
         );
 
-        add(pestanas);
+        areaResultados =
+                new JTextArea();
 
-        actualizarTablaEnfermeras();
+        areaResultados.setEditable(false);
+
+        areaResultados.setRows(6);
+
+        add(
+                new JScrollPane(
+                        areaResultados
+                ),
+                BorderLayout.SOUTH
+        );
     }
 
-    // =========================================================
+    // =====================================================
     // PANEL ENFERMERAS
-    // =========================================================
+    // =====================================================
 
     private JPanel crearPanelEnfermeras() {
 
-        JPanel panel = new JPanel(
-                new BorderLayout(10, 10)
-        );
+        JPanel panel =
+                new JPanel(
+                        new BorderLayout(
+                                10,
+                                10
+                        )
+                );
 
         panel.setBorder(
                 BorderFactory.createEmptyBorder(
-                        10, 10, 10, 10
+                        15,
+                        20,
+                        15,
+                        20
                 )
         );
 
-        JPanel formulario = new JPanel(
-                new GridLayout(3, 2, 8, 8)
+        // =================================================
+        // TITULO
+        // =================================================
+
+        JLabel titulo =
+                new JLabel(
+                        "Gestión de Enfermeras"
+                );
+
+        titulo.setFont(
+                new Font(
+                        "SansSerif",
+                        Font.BOLD,
+                        20
+                )
         );
+
+        titulo.setHorizontalAlignment(
+                SwingConstants.CENTER
+        );
+
+        panel.add(
+                titulo,
+                BorderLayout.NORTH
+        );
+
+        // =================================================
+        // FORMULARIO
+        // =================================================
+
+        JPanel formulario =
+                new JPanel(
+                        new GridBagLayout()
+                );
 
         formulario.setBorder(
                 BorderFactory.createTitledBorder(
@@ -121,213 +154,255 @@ public class VentanaPrincipal extends JFrame {
                 )
         );
 
-        formulario.add(new JLabel("RUT:"));
+        GridBagConstraints gbc =
+                new GridBagConstraints();
 
-        txtRut = new JTextField();
-        formulario.add(txtRut);
+        gbc.insets =
+                new Insets(
+                        8,
+                        10,
+                        8,
+                        10
+                );
 
-        formulario.add(new JLabel("Nombre:"));
+        gbc.fill =
+                GridBagConstraints.HORIZONTAL;
 
-        txtNombre = new JTextField();
-        formulario.add(txtNombre);
+        gbc.weightx = 0;
 
-        formulario.add(new JLabel("Especialidad:"));
+        // RUT
 
-        txtEspecialidad = new JTextField();
-        formulario.add(txtEspecialidad);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+
+        formulario.add(
+                new JLabel("RUT:"),
+                gbc
+        );
+
+        txtRut =
+                new JTextField();
+
+        txtRut.setPreferredSize(
+                new Dimension(
+                        300,
+                        30
+                )
+        );
+
+        gbc.gridx = 1;
+        gbc.weightx = 1;
+
+        formulario.add(
+                txtRut,
+                gbc
+        );
+
+        // NOMBRE
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.weightx = 0;
+
+        formulario.add(
+                new JLabel("Nombre:"),
+                gbc
+        );
+
+        txtNombre =
+                new JTextField();
+
+        txtNombre.setPreferredSize(
+                new Dimension(
+                        300,
+                        30
+                )
+        );
+
+        gbc.gridx = 1;
+        gbc.weightx = 1;
+
+        formulario.add(
+                txtNombre,
+                gbc
+        );
+
+        // ESPECIALIDAD
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.weightx = 0;
+
+        formulario.add(
+                new JLabel("Especialidad:"),
+                gbc
+        );
+
+        txtEspecialidad =
+                new JTextField();
+
+        txtEspecialidad.setPreferredSize(
+                new Dimension(
+                        300,
+                        30
+                )
+        );
+
+        gbc.gridx = 1;
+        gbc.weightx = 1;
+
+        formulario.add(
+                txtEspecialidad,
+                gbc
+        );
 
         panel.add(
                 formulario,
-                BorderLayout.NORTH
-        );
-
-        // =====================================================
-        // TABLA DE ENFERMERAS
-        // =====================================================
-
-        modeloTablaEnfermeras =
-                new DefaultTableModel(
-                        new Object[]{
-                                "RUT",
-                                "Nombre",
-                                "Especialidad",
-                                "N° Turnos"
-                        },
-                        0
-                ) {
-
-                    @Override
-                    public boolean isCellEditable(
-                            int fila,
-                            int columna) {
-
-                        return false;
-                    }
-                };
-
-        tablaEnfermeras =
-                new JTable(modeloTablaEnfermeras);
-
-        tablaEnfermeras.setSelectionMode(
-                ListSelectionModel.SINGLE_SELECTION
-        );
-
-        tablaEnfermeras.getSelectionModel()
-                .addListSelectionListener(e -> {
-
-                    if (!e.getValueIsAdjusting()) {
-
-                        int fila =
-                                tablaEnfermeras
-                                        .getSelectedRow();
-
-                        if (fila >= 0) {
-
-                            txtRut.setText(
-                                    modeloTablaEnfermeras
-                                            .getValueAt(
-                                                    fila, 0
-                                            )
-                                            .toString()
-                            );
-
-                            txtNombre.setText(
-                                    modeloTablaEnfermeras
-                                            .getValueAt(
-                                                    fila, 1
-                                            )
-                                            .toString()
-                            );
-
-                            txtEspecialidad.setText(
-                                    modeloTablaEnfermeras
-                                            .getValueAt(
-                                                    fila, 2
-                                            )
-                                            .toString()
-                            );
-                        }
-                    }
-                });
-
-        panel.add(
-                new JScrollPane(tablaEnfermeras),
                 BorderLayout.CENTER
         );
 
-        // =====================================================
+        // =================================================
         // BOTONES
-        // =====================================================
+        // =================================================
 
-        JPanel botones = new JPanel();
+        JPanel botones =
+                new JPanel(
+                        new GridLayout(
+                                2,
+                                2,
+                                10,
+                                10
+                        )
+                );
+
+        botones.setBorder(
+                BorderFactory.createEmptyBorder(
+                        5,
+                        0,
+                        0,
+                        0
+                )
+        );
 
         JButton btnAgregar =
-                new JButton("Agregar");
-
-        JButton btnModificar =
-                new JButton("Modificar");
+                new JButton(
+                        "Agregar / Modificar"
+                );
 
         JButton btnEliminar =
-                new JButton("Eliminar");
+                new JButton(
+                        "Eliminar"
+                );
+
+        JButton btnMostrar =
+                new JButton(
+                        "Mostrar Enfermeras"
+                );
 
         JButton btnBuscar =
-                new JButton("Buscar");
+                new JButton(
+                        "Buscar Enfermera"
+                );
 
-        JButton btnLimpiar =
-                new JButton("Limpiar");
+        botones.add(
+                btnAgregar
+        );
 
-        botones.add(btnAgregar);
-        botones.add(btnModificar);
-        botones.add(btnEliminar);
-        botones.add(btnBuscar);
-        botones.add(btnLimpiar);
+        botones.add(
+                btnEliminar
+        );
+
+        botones.add(
+                btnMostrar
+        );
+
+        botones.add(
+                btnBuscar
+        );
 
         panel.add(
                 botones,
                 BorderLayout.SOUTH
         );
 
-        // =====================================================
-        // AGREGAR
-        // =====================================================
+        // =================================================
+        // AGREGAR / MODIFICAR
+        // =================================================
 
         btnAgregar.addActionListener(e -> {
 
-            if (camposEnfermeraVacios()) {
+            String rut =
+                    txtRut.getText().trim();
 
-                mostrarAdvertencia(
+            String nombre =
+                    txtNombre.getText().trim();
+
+            String especialidad =
+                    txtEspecialidad
+                            .getText()
+                            .trim();
+
+            if (rut.isEmpty()
+                    || nombre.isEmpty()
+                    || especialidad.isEmpty()) {
+
+                mostrarMensaje(
                         "Debe completar todos los campos."
                 );
 
                 return;
             }
 
-            boolean agregado =
-                    gestor.agregarEnfermera(
-                            txtRut.getText(),
-                            txtNombre.getText(),
-                            txtEspecialidad.getText()
+            Enfermera existente =
+                    gestor.buscarEnfermera(rut);
+
+            if (existente == null) {
+
+                if (gestor.agregarEnfermera(
+                        rut,
+                        nombre,
+                        especialidad
+                )) {
+
+                    mostrarMensaje(
+                            "Enfermera agregada correctamente."
                     );
 
-            if (agregado) {
+                    limpiarCamposEnfermera();
 
-                mostrarMensaje(
-                        "Enfermera agregada correctamente."
-                );
+                } else {
 
-                actualizarTablaEnfermeras();
-                limpiarCamposEnfermera();
+                    mostrarMensaje(
+                            "No se pudo agregar la enfermera."
+                    );
+                }
 
             } else {
 
-                mostrarAdvertencia(
-                        "Ya existe una enfermera con ese RUT."
-                );
-            }
-        });
+                if (gestor.modificarEnfermera(
+                        rut,
+                        nombre,
+                        especialidad
+                )) {
 
-        // =====================================================
-        // MODIFICAR
-        // =====================================================
-
-        btnModificar.addActionListener(e -> {
-
-            if (txtRut.getText().trim().isEmpty()) {
-
-                mostrarAdvertencia(
-                        "Ingrese el RUT de la enfermera."
-                );
-
-                return;
-            }
-
-            boolean modificado =
-                    gestor.modificarEnfermera(
-                            txtRut.getText(),
-                            txtNombre.getText(),
-                            txtEspecialidad.getText()
+                    mostrarMensaje(
+                            "Enfermera modificada correctamente."
                     );
 
-            if (modificado) {
+                    limpiarCamposEnfermera();
 
-                mostrarMensaje(
-                        "Enfermera modificada correctamente."
-                );
+                } else {
 
-                actualizarTablaEnfermeras();
-                limpiarCamposEnfermera();
-
-            } else {
-
-                mostrarError(
-                        "No se encontró una enfermera con ese RUT."
-                );
+                    mostrarMensaje(
+                            "No se pudo modificar la enfermera."
+                    );
+                }
             }
         });
 
-        // =====================================================
+        // =================================================
         // ELIMINAR
-        // =====================================================
+        // =================================================
 
         btnEliminar.addActionListener(e -> {
 
@@ -336,7 +411,7 @@ public class VentanaPrincipal extends JFrame {
 
             if (rut.isEmpty()) {
 
-                mostrarAdvertencia(
+                mostrarMensaje(
                         "Ingrese el RUT de la enfermera."
                 );
 
@@ -346,7 +421,8 @@ public class VentanaPrincipal extends JFrame {
             int respuesta =
                     JOptionPane.showConfirmDialog(
                             this,
-                            "¿Está seguro de eliminar esta enfermera?",
+                            "¿Está seguro de eliminar "
+                            + "esta enfermera?",
                             "Confirmar eliminación",
                             JOptionPane.YES_NO_OPTION
                     );
@@ -354,30 +430,75 @@ public class VentanaPrincipal extends JFrame {
             if (respuesta ==
                     JOptionPane.YES_OPTION) {
 
-                boolean eliminada =
-                        gestor.eliminarEnfermera(rut);
-
-                if (eliminada) {
+                if (gestor.eliminarEnfermera(rut)) {
 
                     mostrarMensaje(
                             "Enfermera eliminada correctamente."
                     );
 
-                    actualizarTablaEnfermeras();
                     limpiarCamposEnfermera();
 
                 } else {
 
-                    mostrarError(
+                    mostrarMensaje(
                             "No se encontró la enfermera."
                     );
                 }
             }
         });
 
-        // =====================================================
+        // =================================================
+        // MOSTRAR
+        // =================================================
+
+        btnMostrar.addActionListener(e -> {
+
+            StringBuilder texto =
+                    new StringBuilder();
+
+            texto.append(
+                    "--- ENFERMERAS REGISTRADAS ---\n\n"
+            );
+
+            if (gestor.getMapaEnfermeras()
+                    .isEmpty()) {
+
+                texto.append(
+                        "No existen enfermeras registradas."
+                );
+
+            } else {
+
+                for (Enfermera enfermera :
+                        gestor.getMapaEnfermeras()
+                                .values()) {
+
+                    texto.append(
+                            "RUT: "
+                    ).append(
+                            enfermera.getRut()
+                    ).append(
+                            "\nNombre: "
+                    ).append(
+                            enfermera.getNombre()
+                    ).append(
+                            "\nEspecialidad: "
+                    ).append(
+                            enfermera.getEspecialidad()
+                    ).append(
+                            "\n\n"
+                    );
+                }
+            }
+
+            mostrarResultado(
+                    texto.toString()
+            );
+        });
+
+        // =================================================
         // BUSCAR
-        // =====================================================
+        // =================================================
 
         btnBuscar.addActionListener(e -> {
 
@@ -386,8 +507,8 @@ public class VentanaPrincipal extends JFrame {
 
             if (rut.isEmpty()) {
 
-                mostrarAdvertencia(
-                        "Ingrese un RUT para buscar."
+                mostrarMensaje(
+                        "Ingrese el RUT de la enfermera."
                 );
 
                 return;
@@ -406,99 +527,209 @@ public class VentanaPrincipal extends JFrame {
                         enfermera.getEspecialidad()
                 );
 
-                seleccionarEnfermeraTabla(rut);
+                mostrarResultado(
+                        "Enfermera encontrada:\n\n"
+                        + "RUT: "
+                        + enfermera.getRut()
+                        + "\nNombre: "
+                        + enfermera.getNombre()
+                        + "\nEspecialidad: "
+                        + enfermera.getEspecialidad()
+                );
 
             } else {
 
-                mostrarError(
-                        "No se encontró una enfermera con ese RUT."
+                mostrarMensaje(
+                        "No se encontró la enfermera."
                 );
             }
         });
 
-        // =====================================================
-        // LIMPIAR
-        // =====================================================
-
-        btnLimpiar.addActionListener(e ->
-                limpiarCamposEnfermera()
-        );
-
         return panel;
     }
 
-    // =========================================================
+    // =====================================================
     // PANEL TURNOS
-    // =========================================================
+    // =====================================================
 
     private JPanel crearPanelTurnos() {
 
         JPanel panel =
                 new JPanel(
-                        new BorderLayout(10, 10)
+                        new BorderLayout(
+                                10,
+                                10
+                        )
                 );
 
         panel.setBorder(
                 BorderFactory.createEmptyBorder(
-                        10, 10, 10, 10
+                        15,
+                        20,
+                        15,
+                        20
                 )
+        );
+
+        JLabel titulo =
+                new JLabel(
+                        "Gestión de Turnos"
+                );
+
+        titulo.setFont(
+                new Font(
+                        "SansSerif",
+                        Font.BOLD,
+                        20
+                )
+        );
+
+        titulo.setHorizontalAlignment(
+                SwingConstants.CENTER
+        );
+
+        panel.add(
+                titulo,
+                BorderLayout.NORTH
         );
 
         JPanel formulario =
                 new JPanel(
-                        new GridLayout(5, 2, 8, 8)
+                        new GridBagLayout()
                 );
 
         formulario.setBorder(
                 BorderFactory.createTitledBorder(
-                        "Gestión de Turnos"
+                        "Datos del Turno"
                 )
         );
 
+        GridBagConstraints gbc =
+                new GridBagConstraints();
+
+        gbc.insets =
+                new Insets(
+                        8,
+                        10,
+                        8,
+                        10
+                );
+
+        gbc.fill =
+                GridBagConstraints.HORIZONTAL;
+
+        // RUT
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+
         formulario.add(
-                new JLabel("RUT Enfermera:")
+                new JLabel(
+                        "RUT Enfermera:"
+                ),
+                gbc
         );
 
         txtRutTurno =
                 new JTextField();
 
-        formulario.add(txtRutTurno);
+        gbc.gridx = 1;
+        gbc.weightx = 1;
 
         formulario.add(
-                new JLabel("ID Turno:")
+                txtRutTurno,
+                gbc
+        );
+
+        // ID
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.weightx = 0;
+
+        formulario.add(
+                new JLabel(
+                        "ID Turno:"
+                ),
+                gbc
         );
 
         txtIdTurno =
                 new JTextField();
 
-        formulario.add(txtIdTurno);
+        gbc.gridx = 1;
+        gbc.weightx = 1;
 
         formulario.add(
-                new JLabel("Fecha (DD-MM-AAAA):")
+                txtIdTurno,
+                gbc
+        );
+
+        // FECHA
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.weightx = 0;
+
+        formulario.add(
+                new JLabel(
+                        "Fecha:"
+                ),
+                gbc
         );
 
         txtFechaTurno =
                 new JTextField();
 
-        formulario.add(txtFechaTurno);
+        gbc.gridx = 1;
+        gbc.weightx = 1;
 
         formulario.add(
-                new JLabel("Tipo:")
+                txtFechaTurno,
+                gbc
+        );
+
+        // TIPO
+
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.weightx = 0;
+
+        formulario.add(
+                new JLabel(
+                        "Tipo:"
+                ),
+                gbc
         );
 
         cmbTipoTurno =
                 new JComboBox<>(
                         new String[]{
-                                "Manana",
-                                "Tarde",
-                                "Noche"
+                                "MANANA",
+                                "TARDE",
+                                "NOCHE"
                         }
                 );
 
-        formulario.add(cmbTipoTurno);
+        gbc.gridx = 1;
+        gbc.weightx = 1;
 
         formulario.add(
-                new JLabel("Estado:")
+                cmbTipoTurno,
+                gbc
+        );
+
+        // ESTADO
+
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.weightx = 0;
+
+        formulario.add(
+                new JLabel(
+                        "Estado:"
+                ),
+                gbc
         );
 
         cmbEstadoTurno =
@@ -511,71 +742,73 @@ public class VentanaPrincipal extends JFrame {
                         }
                 );
 
-        formulario.add(cmbEstadoTurno);
+        gbc.gridx = 1;
+        gbc.weightx = 1;
+
+        formulario.add(
+                cmbEstadoTurno,
+                gbc
+        );
 
         panel.add(
                 formulario,
-                BorderLayout.NORTH
-        );
-
-        // =====================================================
-        // AREA DE INFORMACION
-        // =====================================================
-
-        areaTurnos =
-                new JTextArea();
-
-        areaTurnos.setEditable(false);
-
-        areaTurnos.setFont(
-                new Font(
-                        "Monospaced",
-                        Font.PLAIN,
-                        14
-                )
-        );
-
-        panel.add(
-                new JScrollPane(areaTurnos),
                 BorderLayout.CENTER
         );
 
-        // =====================================================
-        // BOTONES
-        // =====================================================
-
         JPanel botones =
-                new JPanel();
+                new JPanel(
+                        new GridLayout(
+                                1,
+                                4,
+                                10,
+                                10
+                        )
+                );
 
         JButton btnAsignar =
-                new JButton("Asignar");
+                new JButton(
+                        "Asignar"
+                );
 
         JButton btnBuscar =
-                new JButton("Buscar");
+                new JButton(
+                        "Buscar"
+                );
 
         JButton btnModificar =
-                new JButton("Modificar");
+                new JButton(
+                        "Modificar"
+                );
 
         JButton btnEliminar =
-                new JButton("Eliminar");
+                new JButton(
+                        "Eliminar"
+                );
 
-        JButton btnLimpiar =
-                new JButton("Limpiar");
+        botones.add(
+                btnAsignar
+        );
 
-        botones.add(btnAsignar);
-        botones.add(btnBuscar);
-        botones.add(btnModificar);
-        botones.add(btnEliminar);
-        botones.add(btnLimpiar);
+        botones.add(
+                btnBuscar
+        );
+
+        botones.add(
+                btnModificar
+        );
+
+        botones.add(
+                btnEliminar
+        );
 
         panel.add(
                 botones,
                 BorderLayout.SOUTH
         );
 
-        // =====================================================
-        // ASIGNAR TURNO
-        // =====================================================
+        // =================================================
+        // ASIGNAR
+        // =================================================
 
         btnAsignar.addActionListener(e -> {
 
@@ -586,7 +819,7 @@ public class VentanaPrincipal extends JFrame {
                     || txtFechaTurno.getText()
                     .trim().isEmpty()) {
 
-                mostrarAdvertencia(
+                mostrarMensaje(
                         "Complete todos los campos."
                 );
 
@@ -600,7 +833,7 @@ public class VentanaPrincipal extends JFrame {
 
             if (enfermera == null) {
 
-                mostrarError(
+                mostrarMensaje(
                         "No se encontró la enfermera."
                 );
 
@@ -610,130 +843,109 @@ public class VentanaPrincipal extends JFrame {
             enfermera.agregarTurno(
                     txtIdTurno.getText(),
                     txtFechaTurno.getText(),
-                    (String) cmbTipoTurno
-                            .getSelectedItem()
+                    (String)
+                            cmbTipoTurno
+                                    .getSelectedItem()
             );
-
-            gestor.guardarDatos();
 
             mostrarMensaje(
                     "Turno asignado correctamente."
             );
-
-            mostrarTurnos(enfermera);
-            actualizarTablaEnfermeras();
         });
 
-        // =====================================================
-        // BUSCAR TURNO
-        // =====================================================
+        // =================================================
+        // BUSCAR
+        // =================================================
 
         btnBuscar.addActionListener(e -> {
 
-            String rut =
-                    txtRutTurno.getText().trim();
-
-            String id =
-                    txtIdTurno.getText().trim();
-
             Turno turno =
                     gestor.buscarTurnoDeEnfermera(
-                            rut,
-                            id
+                            txtRutTurno.getText(),
+                            txtIdTurno.getText()
                     );
 
             if (turno != null) {
 
-                areaTurnos.setText(
-                        turno.toString()
+                mostrarResultado(
+                        "Turno encontrado:\n\n"
+                        + turno
                 );
 
             } else {
 
-                mostrarError(
+                mostrarMensaje(
                         "No se encontró el turno."
                 );
             }
         });
 
-        // =====================================================
-        // MODIFICAR TURNO
-        // =====================================================
+        // =================================================
+        // MODIFICAR
+        // =================================================
 
         btnModificar.addActionListener(e -> {
 
-            String rut =
-                    txtRutTurno.getText().trim();
+            try {
 
-            String id =
-                    txtIdTurno.getText().trim();
+                TipoTurno tipo =
+                        TipoTurno.valueOf(
+                                ((String)
+                                        cmbTipoTurno
+                                                .getSelectedItem())
+                                        .toUpperCase()
+                        );
 
-            TipoTurno tipo =
-                    obtenerTipoTurno();
+                EstadoTurno estado =
+                        EstadoTurno.valueOf(
+                                ((String)
+                                        cmbEstadoTurno
+                                                .getSelectedItem())
+                                        .toUpperCase()
+                        );
 
-            EstadoTurno estado =
-                    obtenerEstadoTurno();
+                boolean modificado =
+                        gestor.modificarTurno(
+                                txtRutTurno.getText(),
+                                txtIdTurno.getText(),
+                                txtFechaTurno.getText(),
+                                tipo,
+                                estado
+                        );
 
-            boolean modificado =
-                    gestor.modificarTurno(
-                            rut,
-                            id,
-                            txtFechaTurno.getText(),
-                            tipo,
-                            estado
+                if (modificado) {
+
+                    mostrarMensaje(
+                            "Turno modificado correctamente."
                     );
 
-            if (modificado) {
+                } else {
 
-                mostrarMensaje(
-                        "Turno modificado correctamente."
-                );
-
-                Enfermera enfermera =
-                        gestor.buscarEnfermera(rut);
-
-                if (enfermera != null) {
-                    mostrarTurnos(enfermera);
+                    mostrarMensaje(
+                            "No se encontró el turno."
+                    );
                 }
 
-            } else {
+            } catch (
+                    IllegalArgumentException ex
+            ) {
 
-                mostrarError(
-                        "No se encontró el turno."
+                mostrarMensaje(
+                        "Tipo o estado no válido."
                 );
             }
         });
 
-        // =====================================================
-        // ELIMINAR TURNO
-        // =====================================================
+        // =================================================
+        // ELIMINAR
+        // =================================================
 
         btnEliminar.addActionListener(e -> {
 
-            String rut =
-                    txtRutTurno.getText().trim();
-
-            String id =
-                    txtIdTurno.getText().trim();
-
-            int respuesta =
-                    JOptionPane.showConfirmDialog(
-                            this,
-                            "¿Eliminar este turno?",
-                            "Confirmar eliminación",
-                            JOptionPane.YES_NO_OPTION
-                    );
-
-            if (respuesta !=
-                    JOptionPane.YES_OPTION) {
-
-                return;
-            }
-
             boolean eliminado =
                     gestor.eliminarTurno(
-                            rut,
-                            id
+                            txtRutTurno.getText(),
+                            txtIdTurno.getText()
                     );
 
             if (eliminado) {
@@ -742,504 +954,269 @@ public class VentanaPrincipal extends JFrame {
                         "Turno eliminado correctamente."
                 );
 
-                Enfermera enfermera =
-                        gestor.buscarEnfermera(rut);
-
-                if (enfermera != null) {
-                    mostrarTurnos(enfermera);
-                }
-
-                actualizarTablaEnfermeras();
-
             } else {
 
-                mostrarError(
+                mostrarMensaje(
                         "No se encontró el turno."
                 );
             }
         });
 
-        // =====================================================
-        // LIMPIAR
-        // =====================================================
-
-        btnLimpiar.addActionListener(e -> {
-
-            txtRutTurno.setText("");
-            txtIdTurno.setText("");
-            txtFechaTurno.setText("");
-
-            areaTurnos.setText("");
-        });
-
         return panel;
     }
 
-    // =========================================================
-    // PANEL CONSULTAS
-    // =========================================================
+    // =====================================================
+    // PANEL BÚSQUEDAS
+    // =====================================================
 
-    private JPanel crearPanelConsultas() {
+    private JPanel crearPanelBusquedas() {
 
         JPanel panel =
                 new JPanel(
-                        new BorderLayout(10, 10)
+                        new BorderLayout(
+                                10,
+                                10
+                        )
                 );
 
         panel.setBorder(
                 BorderFactory.createEmptyBorder(
-                        10, 10, 10, 10
+                        20,
+                        20,
+                        20,
+                        20
                 )
         );
 
-        JPanel superior =
-                new JPanel(
-                        new GridLayout(1, 3, 8, 8)
+        JLabel titulo =
+                new JLabel(
+                        "Consultas del Sistema"
                 );
 
-        superior.setBorder(
-                BorderFactory.createTitledBorder(
-                        "Buscar por Especialidad"
+        titulo.setFont(
+                new Font(
+                        "SansSerif",
+                        Font.BOLD,
+                        20
                 )
         );
 
-        superior.add(
-                new JLabel("Especialidad:")
+        titulo.setHorizontalAlignment(
+                SwingConstants.CENTER
         );
-
-        txtEspecialidadConsulta =
-                new JTextField();
-
-        superior.add(
-                txtEspecialidadConsulta
-        );
-
-        JButton btnBuscar =
-                new JButton("Buscar");
-
-        superior.add(btnBuscar);
 
         panel.add(
-                superior,
+                titulo,
                 BorderLayout.NORTH
         );
 
-        areaConsulta =
-                new JTextArea();
+        JPanel botones =
+                new JPanel(
+                        new GridLayout(
+                                2,
+                                1,
+                                10,
+                                10
+                        )
+                );
 
-        areaConsulta.setEditable(false);
+        JButton btnEspecialidad =
+                new JButton(
+                        "Buscar por Especialidad"
+                );
 
-        areaConsulta.setFont(
-                new Font(
-                        "Monospaced",
-                        Font.PLAIN,
-                        14
-                )
+        JButton btnDisponibles =
+                new JButton(
+                        "Buscar Enfermeras Disponibles"
+                );
+
+        botones.add(
+                btnEspecialidad
+        );
+
+        botones.add(
+                btnDisponibles
         );
 
         panel.add(
-                new JScrollPane(areaConsulta),
+                botones,
                 BorderLayout.CENTER
         );
 
-        btnBuscar.addActionListener(e -> {
+        // =================================================
+        // BUSCAR POR ESPECIALIDAD
+        // =================================================
+
+        btnEspecialidad.addActionListener(e -> {
 
             String especialidad =
-                    txtEspecialidadConsulta
-                            .getText()
-                            .trim();
+                    JOptionPane.showInputDialog(
+                            this,
+                            "Ingrese la especialidad:"
+                    );
 
-            if (especialidad.isEmpty()) {
-
-                mostrarAdvertencia(
-                        "Ingrese una especialidad."
-                );
-
+            if (especialidad == null) {
                 return;
             }
 
-            areaConsulta.setText("");
-
-            for (Enfermera enfermera :
+            java.util.List<Enfermera> resultado =
                     gestor.buscarPorEspecialidad(
-                            especialidad)) {
+                            especialidad
+                    );
 
-                areaConsulta.append(
-                        "RUT: "
-                        + enfermera.getRut()
-                        + "\n"
-                );
+            StringBuilder texto =
+                    new StringBuilder();
 
-                areaConsulta.append(
-                        "Nombre: "
-                        + enfermera.getNombre()
-                        + "\n"
-                );
+            texto.append(
+                    "--- RESULTADOS ---\n\n"
+            );
 
-                areaConsulta.append(
-                        "Especialidad: "
-                        + enfermera.getEspecialidad()
-                        + "\n"
-                );
+            if (resultado.isEmpty()) {
 
-                areaConsulta.append(
-                        "Turnos: "
-                        + enfermera
-                                .getTurnosAsignados()
-                                .size()
-                        + "\n"
-                );
-
-                areaConsulta.append(
-                        "-----------------------------\n"
-                );
-            }
-
-            if (areaConsulta.getText().isEmpty()) {
-
-                areaConsulta.setText(
+                texto.append(
                         "No se encontraron enfermeras."
                 );
+
+            } else {
+
+                for (Enfermera enfermera :
+                        resultado) {
+
+                    texto.append(
+                            enfermera.obtenerIdentificacion()
+                    ).append(
+                            "\n"
+                    );
+                }
             }
+
+            mostrarResultado(
+                    texto.toString()
+            );
         });
 
-        return panel;
-    }
+        // =================================================
+        // DISPONIBLES
+        // =================================================
 
-    // =========================================================
-    // PANEL DISPONIBILIDAD
-    // =========================================================
+        btnDisponibles.addActionListener(e -> {
 
-    private JPanel crearPanelDisponibilidad() {
+            JTextField txtEspecialidad =
+                    new JTextField();
 
-        JPanel panel =
-                new JPanel(
-                        new BorderLayout(10, 10)
-                );
+            JTextField txtFecha =
+                    new JTextField();
 
-        panel.setBorder(
-                BorderFactory.createEmptyBorder(
-                        10, 10, 10, 10
-                )
-        );
+            JPanel formulario =
+                    new JPanel(
+                            new GridLayout(
+                                    0,
+                                    1,
+                                    5,
+                                    5
+                            )
+                    );
 
-        JPanel formulario =
-                new JPanel(
-                        new GridLayout(1, 4, 8, 8)
-                );
+            formulario.add(
+                    new JLabel(
+                            "Especialidad:"
+                    )
+            );
 
-        formulario.setBorder(
-                BorderFactory.createTitledBorder(
-                        "Buscar Enfermeras Disponibles"
-                )
-        );
+            formulario.add(
+                    txtEspecialidad
+            );
 
-        formulario.add(
-                new JLabel("Especialidad:")
-        );
+            formulario.add(
+                    new JLabel(
+                            "Fecha:"
+                    )
+            );
 
-        txtEspecialidadDisponible =
-                new JTextField();
+            formulario.add(
+                    txtFecha
+            );
 
-        formulario.add(
-                txtEspecialidadDisponible
-        );
+            int opcion =
+                    JOptionPane.showConfirmDialog(
+                            this,
+                            formulario,
+                            "Buscar Disponibilidad",
+                            JOptionPane.OK_CANCEL_OPTION
+                    );
 
-        formulario.add(
-                new JLabel("Fecha:")
-        );
-
-        txtFechaDisponible =
-                new JTextField();
-
-        formulario.add(
-                txtFechaDisponible
-        );
-
-        panel.add(
-                formulario,
-                BorderLayout.NORTH
-        );
-
-        modeloTablaDisponibles =
-                new DefaultTableModel(
-                        new Object[]{
-                                "RUT",
-                                "Nombre",
-                                "Especialidad"
-                        },
-                        0
-                ) {
-
-                    @Override
-                    public boolean isCellEditable(
-                            int fila,
-                            int columna) {
-
-                        return false;
-                    }
-                };
-
-        tablaDisponibles =
-                new JTable(
-                        modeloTablaDisponibles
-                );
-
-        panel.add(
-                new JScrollPane(tablaDisponibles),
-                BorderLayout.CENTER
-        );
-
-        JButton btnBuscar =
-                new JButton(
-                        "Buscar Disponibles"
-                );
-
-        panel.add(
-                btnBuscar,
-                BorderLayout.SOUTH
-        );
-
-        btnBuscar.addActionListener(e -> {
-
-            String especialidad =
-                    txtEspecialidadDisponible
-                            .getText()
-                            .trim();
-
-            String fecha =
-                    txtFechaDisponible
-                            .getText()
-                            .trim();
-
-            if (especialidad.isEmpty()
-                    || fecha.isEmpty()) {
-
-                mostrarAdvertencia(
-                        "Complete especialidad y fecha."
-                );
+            if (opcion !=
+                    JOptionPane.OK_OPTION) {
 
                 return;
             }
 
-            modeloTablaDisponibles
-                    .setRowCount(0);
-
-            for (Enfermera enfermera :
+            java.util.List<Enfermera> disponibles =
                     gestor.buscarEnfermerasDisponibles(
-                            especialidad,
-                            fecha
-                    )) {
+                            txtEspecialidad.getText(),
+                            txtFecha.getText()
+                    );
 
-                modeloTablaDisponibles.addRow(
-                        new Object[]{
-                                enfermera.getRut(),
-                                enfermera.getNombre(),
-                                enfermera.getEspecialidad()
-                        }
+            StringBuilder texto =
+                    new StringBuilder();
+
+            texto.append(
+                    "--- ENFERMERAS DISPONIBLES ---\n\n"
+            );
+
+            if (disponibles.isEmpty()) {
+
+                texto.append(
+                        "No hay enfermeras disponibles."
                 );
+
+            } else {
+
+                for (Enfermera enfermera :
+                        disponibles) {
+
+                    texto.append(
+                            enfermera.obtenerIdentificacion()
+                    ).append(
+                            "\n"
+                    );
+                }
             }
+
+            mostrarResultado(
+                    texto.toString()
+            );
         });
 
         return panel;
     }
 
-    // =========================================================
-    // MOSTRAR TURNOS
-    // =========================================================
-
-    private void mostrarTurnos(
-            Enfermera enfermera) {
-
-        areaTurnos.setText("");
-
-        areaTurnos.append(
-                "RUT: "
-                + enfermera.getRut()
-                + "\n"
-        );
-
-        areaTurnos.append(
-                "Nombre: "
-                + enfermera.getNombre()
-                + "\n"
-        );
-
-        areaTurnos.append(
-                "Especialidad: "
-                + enfermera.getEspecialidad()
-                + "\n\n"
-        );
-
-        areaTurnos.append(
-                "TURNOS ASIGNADOS\n"
-        );
-
-        areaTurnos.append(
-                "=============================\n"
-        );
-
-        for (Turno turno :
-                enfermera.getTurnosAsignados()) {
-
-            areaTurnos.append(
-                    turno.toString()
-                    + "\n"
-            );
-
-            areaTurnos.append(
-                    "-----------------------------\n"
-            );
-        }
-
-        if (enfermera
-                .getTurnosAsignados()
-                .isEmpty()) {
-
-            areaTurnos.append(
-                    "No tiene turnos asignados.\n"
-            );
-        }
-    }
-
-    // =========================================================
-    // ACTUALIZAR TABLA
-    // =========================================================
-
-    private void actualizarTablaEnfermeras() {
-
-        if (modeloTablaEnfermeras == null) {
-            return;
-        }
-
-        modeloTablaEnfermeras
-                .setRowCount(0);
-
-        for (Enfermera enfermera :
-                gestor.getMapaEnfermeras()
-                        .values()) {
-
-            modeloTablaEnfermeras.addRow(
-                    new Object[]{
-                            enfermera.getRut(),
-                            enfermera.getNombre(),
-                            enfermera.getEspecialidad(),
-                            enfermera
-                                    .getTurnosAsignados()
-                                    .size()
-                    }
-            );
-        }
-    }
-
-    // =========================================================
-    // SELECCIONAR ENFERMERA EN TABLA
-    // =========================================================
-
-    private void seleccionarEnfermeraTabla(
-            String rut) {
-
-        for (int i = 0;
-                i < modeloTablaEnfermeras
-                        .getRowCount();
-                i++) {
-
-            if (modeloTablaEnfermeras
-                    .getValueAt(i, 0)
-                    .toString()
-                    .equals(rut)) {
-
-                tablaEnfermeras
-                        .setRowSelectionInterval(
-                                i,
-                                i
-                        );
-
-                break;
-            }
-        }
-    }
-
-    // =========================================================
-    // OBTENER TIPO DE TURNO
-    // =========================================================
-
-    private TipoTurno obtenerTipoTurno() {
-
-        String tipo =
-                (String) cmbTipoTurno
-                        .getSelectedItem();
-
-        if (tipo.equals("Tarde")) {
-            return TipoTurno.TARDE;
-        }
-
-        if (tipo.equals("Noche")) {
-            return TipoTurno.NOCHE;
-        }
-
-        return TipoTurno.MANANA;
-    }
-
-    // =========================================================
-    // OBTENER ESTADO DE TURNO
-    // =========================================================
-
-    private EstadoTurno obtenerEstadoTurno() {
-
-        String estado =
-                (String) cmbEstadoTurno
-                        .getSelectedItem();
-
-        if (estado.equals("CONFIRMADO")) {
-            return EstadoTurno.CONFIRMADO;
-        }
-
-        if (estado.equals("CANCELADO")) {
-            return EstadoTurno.CANCELADO;
-        }
-
-        if (estado.equals("COMPLETADO")) {
-            return EstadoTurno.COMPLETADO;
-        }
-
-        return EstadoTurno.PENDIENTE;
-    }
-
-    // =========================================================
-    // VALIDAR CAMPOS
-    // =========================================================
-
-    private boolean camposEnfermeraVacios() {
-
-        return txtRut.getText()
-                .trim().isEmpty()
-
-                || txtNombre.getText()
-                .trim().isEmpty()
-
-                || txtEspecialidad.getText()
-                .trim().isEmpty();
-    }
-
-    // =========================================================
-    // LIMPIAR ENFERMERA
-    // =========================================================
+    // =====================================================
+    // LIMPIAR CAMPOS
+    // =====================================================
 
     private void limpiarCamposEnfermera() {
 
         txtRut.setText("");
         txtNombre.setText("");
         txtEspecialidad.setText("");
-
-        if (tablaEnfermeras != null) {
-            tablaEnfermeras.clearSelection();
-        }
     }
 
-    // =========================================================
-    // MENSAJES
-    // =========================================================
+    // =====================================================
+    // MOSTRAR RESULTADO
+    // =====================================================
+
+    private void mostrarResultado(
+            String texto) {
+
+        areaResultados.setText(
+                texto
+        );
+    }
+
+    // =====================================================
+    // MOSTRAR MENSAJE
+    // =====================================================
 
     private void mostrarMensaje(
             String mensaje) {
@@ -1249,28 +1226,6 @@ public class VentanaPrincipal extends JFrame {
                 mensaje,
                 "Sistema Hospitalario",
                 JOptionPane.INFORMATION_MESSAGE
-        );
-    }
-
-    private void mostrarAdvertencia(
-            String mensaje) {
-
-        JOptionPane.showMessageDialog(
-                this,
-                mensaje,
-                "Advertencia",
-                JOptionPane.WARNING_MESSAGE
-        );
-    }
-
-    private void mostrarError(
-            String mensaje) {
-
-        JOptionPane.showMessageDialog(
-                this,
-                mensaje,
-                "Error",
-                JOptionPane.ERROR_MESSAGE
         );
     }
 }

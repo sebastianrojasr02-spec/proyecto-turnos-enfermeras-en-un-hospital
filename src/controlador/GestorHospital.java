@@ -1,6 +1,12 @@
 package controlador;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,20 +18,30 @@ import modelo.TipoTurno;
 import modelo.EstadoTurno;
 
 public class GestorHospital implements Serializable {
-    private static final long serialVersionUID = 1L;
-    private final String ARCHIVO_DATOS = "datos_hospital.dat";
 
-    // SIA-4: Colección principal
+    private static final long serialVersionUID = 1L;
+
+    // SIA-11: archivo utilizado para la persistencia
+    private static final String ARCHIVO_DATOS =
+            "datos_hospital.csv";
+
+    // SIA-4: colección principal
     private Map<String, Enfermera> mapaEnfermeras;
 
     public GestorHospital() {
-        this.mapaEnfermeras = new HashMap<>();
+
+        mapaEnfermeras = new HashMap<>();
+
+        // SIA-11: cargar datos al iniciar
         if (!cargarDatos()) {
             cargarDatosIniciales();
         }
     }
 
-    // Datos iniciales
+    // =====================================================
+    // DATOS INICIALES
+    // =====================================================
+
     private void cargarDatosIniciales() {
 
         Enfermera enf1 = new Enfermera(
@@ -65,19 +81,27 @@ public class GestorHospital implements Serializable {
         enf1.agregarTurno(turno1);
         enf2.agregarTurno(turno2);
 
-        mapaEnfermeras.put(enf1.getRut(), enf1);
-        mapaEnfermeras.put(enf2.getRut(), enf2);
-        
-        guardarDatos();
+        mapaEnfermeras.put(
+                enf1.getRut(),
+                enf1
+        );
+
+        mapaEnfermeras.put(
+                enf2.getRut(),
+                enf2
+        );
     }
 
     // =====================================================
     // SIA-5: SOBRECARGA
     // =====================================================
 
-    public boolean agregarEnfermera(Enfermera nuevaEnfermera) {
+    public boolean agregarEnfermera(
+            Enfermera nuevaEnfermera) {
 
-        if (mapaEnfermeras.containsKey(nuevaEnfermera.getRut())) {
+        if (mapaEnfermeras.containsKey(
+                nuevaEnfermera.getRut())) {
+
             return false;
         }
 
@@ -86,7 +110,6 @@ public class GestorHospital implements Serializable {
                 nuevaEnfermera
         );
 
-        guardarDatos();
         return true;
     }
 
@@ -95,11 +118,12 @@ public class GestorHospital implements Serializable {
             String nombre,
             String especialidad) {
 
-        Enfermera nueva = new Enfermera(
-                rut,
-                nombre,
-                especialidad
-        );
+        Enfermera nueva =
+                new Enfermera(
+                        rut,
+                        nombre,
+                        especialidad
+                );
 
         return agregarEnfermera(nueva);
     }
@@ -109,26 +133,29 @@ public class GestorHospital implements Serializable {
     // =====================================================
 
     public Map<String, Enfermera> getMapaEnfermeras() {
+
         return mapaEnfermeras;
     }
 
     // =====================================================
-    // SIA-8: BUSCAR
+    // SIA-8: BUSCAR ENFERMERA
     // =====================================================
 
     public Enfermera buscarEnfermera(String rut) {
+
         return mapaEnfermeras.get(rut);
     }
 
     // =====================================================
-    // SIA-8: ELIMINAR
+    // SIA-8: ELIMINAR ENFERMERA
     // =====================================================
 
     public boolean eliminarEnfermera(String rut) {
 
         if (mapaEnfermeras.containsKey(rut)) {
+
             mapaEnfermeras.remove(rut);
-            guardarDatos();
+
             return true;
         }
 
@@ -136,7 +163,7 @@ public class GestorHospital implements Serializable {
     }
 
     // =====================================================
-    // SIA-8: MODIFICAR
+    // SIA-8: MODIFICAR ENFERMERA
     // =====================================================
 
     public boolean modificarEnfermera(
@@ -144,23 +171,25 @@ public class GestorHospital implements Serializable {
             String nuevoNombre,
             String nuevaEspecialidad) {
 
-        Enfermera enfermera = mapaEnfermeras.get(rut);
+        Enfermera enfermera =
+                mapaEnfermeras.get(rut);
 
         if (enfermera != null) {
 
-            if (nuevoNombre != null &&
-                !nuevoNombre.trim().isEmpty()) {
+            if (nuevoNombre != null
+                    && !nuevoNombre.trim().isEmpty()) {
 
                 enfermera.setNombre(nuevoNombre);
             }
 
-            if (nuevaEspecialidad != null &&
-                !nuevaEspecialidad.trim().isEmpty()) {
+            if (nuevaEspecialidad != null
+                    && !nuevaEspecialidad.trim().isEmpty()) {
 
-                enfermera.setEspecialidad(nuevaEspecialidad);
+                enfermera.setEspecialidad(
+                        nuevaEspecialidad
+                );
             }
 
-            guardarDatos();
             return true;
         }
 
@@ -175,11 +204,13 @@ public class GestorHospital implements Serializable {
             String rutEnfermera,
             String idTurno) {
 
-        Enfermera enfermera = buscarEnfermera(rutEnfermera);
+        Enfermera enfermera =
+                buscarEnfermera(rutEnfermera);
 
         if (enfermera != null) {
 
-            for (Turno turno : enfermera.getTurnosAsignados()) {
+            for (Turno turno :
+                    enfermera.getTurnosAsignados()) {
 
                 if (turno.getIdTurno()
                         .equalsIgnoreCase(idTurno)) {
@@ -193,15 +224,17 @@ public class GestorHospital implements Serializable {
     }
 
     // =====================================================
-    // SIA-4 / SIA-9: FILTRAR POR ESPECIALIDAD
+    // SIA-9: FILTRAR POR ESPECIALIDAD
     // =====================================================
 
     public List<Enfermera> buscarPorEspecialidad(
             String especialidad) {
 
-        List<Enfermera> resultado = new ArrayList<>();
+        List<Enfermera> resultado =
+                new ArrayList<>();
 
-        for (Enfermera enfermera : mapaEnfermeras.values()) {
+        for (Enfermera enfermera :
+                mapaEnfermeras.values()) {
 
             if (enfermera.getEspecialidad()
                     .equalsIgnoreCase(especialidad)) {
@@ -237,7 +270,6 @@ public class GestorHospital implements Serializable {
                 enfermera.getTurnosAsignados()
                         .remove(turno);
 
-                guardarDatos();
                 return true;
             }
         }
@@ -264,8 +296,8 @@ public class GestorHospital implements Serializable {
 
         if (turno != null) {
 
-            if (nuevaFecha != null &&
-                !nuevaFecha.trim().isEmpty()) {
+            if (nuevaFecha != null
+                    && !nuevaFecha.trim().isEmpty()) {
 
                 turno.setFecha(nuevaFecha);
             }
@@ -278,7 +310,6 @@ public class GestorHospital implements Serializable {
                 turno.setEstado(nuevoEstado);
             }
 
-            guardarDatos();
             return true;
         }
 
@@ -325,31 +356,303 @@ public class GestorHospital implements Serializable {
     }
 
     // =====================================================
-    // PERSISTENCIA DE DATOS (SERIALIZACIÓN)
+    // SIA-11: GUARDAR DATOS EN CSV
     // =====================================================
 
     public void guardarDatos() {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ARCHIVO_DATOS))) {
-            oos.writeObject(mapaEnfermeras);
-            System.out.println("[SISTEMA] Datos guardados con éxito en " + ARCHIVO_DATOS);
+
+        try (
+                PrintWriter escritor =
+                        new PrintWriter(
+                                new FileWriter(
+                                        ARCHIVO_DATOS
+                                )
+                        )
+        ) {
+
+            escritor.println(
+                    "rut,nombre,especialidad,idTurno,fecha,"
+                    + "tipo,estado,horaInicio,horaFin,sector,"
+                    + "observaciones"
+            );
+
+            for (Enfermera enfermera :
+                    mapaEnfermeras.values()) {
+
+                List<Turno> turnos =
+                        enfermera.getTurnosAsignados();
+
+                if (turnos.isEmpty()) {
+
+                    escritor.println(
+                            convertirCSV(
+                                    enfermera.getRut()
+                            )
+                            + ","
+                            + convertirCSV(
+                                    enfermera.getNombre()
+                            )
+                            + ","
+                            + convertirCSV(
+                                    enfermera.getEspecialidad()
+                            )
+                    );
+
+                } else {
+
+                    for (Turno turno : turnos) {
+
+                        escritor.println(
+                                convertirCSV(
+                                        enfermera.getRut()
+                                )
+                                + ","
+                                + convertirCSV(
+                                        enfermera.getNombre()
+                                )
+                                + ","
+                                + convertirCSV(
+                                        enfermera.getEspecialidad()
+                                )
+                                + ","
+                                + convertirCSV(
+                                        turno.getIdTurno()
+                                )
+                                + ","
+                                + convertirCSV(
+                                        turno.getFecha()
+                                )
+                                + ","
+                                + convertirCSV(
+                                        turno.getTipo().name()
+                                )
+                                + ","
+                                + convertirCSV(
+                                        turno.getEstado().name()
+                                )
+                                + ","
+                                + convertirCSV(
+                                        turno.getHoraInicio()
+                                )
+                                + ","
+                                + convertirCSV(
+                                        turno.getHoraFin()
+                                )
+                                + ","
+                                + convertirCSV(
+                                        turno.getSector()
+                                )
+                                + ","
+                                + convertirCSV(
+                                        turno.getObservaciones()
+                                )
+                        );
+                    }
+                }
+            }
+
+            System.out.println(
+                    "[SISTEMA] Datos guardados en "
+                    + ARCHIVO_DATOS
+            );
+
         } catch (IOException e) {
-            System.err.println("[ERROR] No se pudieron guardar los datos: " + e.getMessage());
+
+            System.err.println(
+                    "[ERROR] No se pudieron guardar "
+                    + "los datos: "
+                    + e.getMessage()
+            );
         }
     }
 
-    @SuppressWarnings("unchecked")
+    // =====================================================
+    // SIA-11: CARGAR DATOS DESDE CSV
+    // =====================================================
+
     public boolean cargarDatos() {
-        File archivo = new File(ARCHIVO_DATOS);
+
+        File archivo =
+                new File(ARCHIVO_DATOS);
+
         if (!archivo.exists()) {
             return false;
         }
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(ARCHIVO_DATOS))) {
-            mapaEnfermeras = (Map<String, Enfermera>) ois.readObject();
-            System.out.println("[SISTEMA] Datos cargados con éxito desde " + ARCHIVO_DATOS);
+
+        try (
+                BufferedReader lector =
+                        new BufferedReader(
+                                new FileReader(archivo)
+                        )
+        ) {
+
+            // Saltar encabezado
+            lector.readLine();
+
+            String linea;
+
+            while ((linea = lector.readLine()) != null) {
+
+                if (linea.trim().isEmpty()) {
+                    continue;
+                }
+
+                String[] datos =
+                        separarCSV(linea);
+
+                if (datos.length < 3) {
+                    continue;
+                }
+
+                String rut =
+                        datos[0];
+
+                String nombre =
+                        datos[1];
+
+                String especialidad =
+                        datos[2];
+
+                Enfermera enfermera =
+                        mapaEnfermeras.get(rut);
+
+                if (enfermera == null) {
+
+                    enfermera =
+                            new Enfermera(
+                                    rut,
+                                    nombre,
+                                    especialidad
+                            );
+
+                    mapaEnfermeras.put(
+                            rut,
+                            enfermera
+                    );
+                }
+
+                if (datos.length < 11
+                        || datos[3].trim().isEmpty()) {
+
+                    continue;
+                }
+
+                Turno turno =
+                        new Turno(
+                                datos[3],
+                                datos[4],
+                                TipoTurno.valueOf(
+                                        datos[5]
+                                ),
+                                EstadoTurno.valueOf(
+                                        datos[6]
+                                ),
+                                datos[7],
+                                datos[8],
+                                datos[9],
+                                datos[10]
+                        );
+
+                enfermera.agregarTurno(turno);
+            }
+
+            System.out.println(
+                    "[SISTEMA] Datos cargados desde "
+                    + ARCHIVO_DATOS
+            );
+
             return true;
-        } catch (IOException | ClassNotFoundException e) {
-            System.err.println("[ERROR] Error al cargar archivo de datos: " + e.getMessage());
+
+        } catch (
+                IOException
+                | IllegalArgumentException e
+        ) {
+
+            System.err.println(
+                    "[ERROR] No se pudieron cargar "
+                    + "los datos: "
+                    + e.getMessage()
+            );
+
+            mapaEnfermeras.clear();
+
             return false;
         }
     }
+
+    // =====================================================
+    // UTILIDAD PARA CSV
+    // =====================================================
+
+    private String convertirCSV(String texto) {
+
+        if (texto == null) {
+            return "";
+        }
+
+        return "\""
+                + texto.replace(
+                        "\"",
+                        "\"\""
+                )
+                + "\"";
+    }
+
+    private String[] separarCSV(String linea) {
+
+        List<String> campos =
+                new ArrayList<>();
+
+        StringBuilder campo =
+                new StringBuilder();
+
+        boolean dentroDeComillas = false;
+
+        for (int i = 0;
+                i < linea.length();
+                i++) {
+
+            char caracter =
+                    linea.charAt(i);
+
+            if (caracter == '"') {
+
+                if (dentroDeComillas
+                        && i + 1 < linea.length()
+                        && linea.charAt(i + 1) == '"') {
+
+                    campo.append('"');
+                    i++;
+
+                } else {
+
+                    dentroDeComillas =
+                            !dentroDeComillas;
+                }
+
+            } else if (
+                    caracter == ','
+                    && !dentroDeComillas) {
+
+                campos.add(
+                        campo.toString()
+                );
+
+                campo.setLength(0);
+
+            } else {
+
+                campo.append(caracter);
+            }
+        }
+
+        campos.add(
+                campo.toString()
+        );
+
+        return campos.toArray(
+                new String[0]
+        );
+    }
 }
+
