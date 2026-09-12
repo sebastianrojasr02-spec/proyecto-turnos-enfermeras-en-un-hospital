@@ -165,7 +165,7 @@ Esto permite usar todas las funciones del sistema sin depender de la interfaz gr
 
 ---
 
-## 🔄 Flujo General de Ejecución
+##  Flujo General de Ejecución
 
 ```
 Inicio
