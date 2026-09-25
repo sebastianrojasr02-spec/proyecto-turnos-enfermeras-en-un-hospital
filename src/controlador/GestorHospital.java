@@ -6,9 +6,11 @@ import java.util.List;
 import java.util.Map;
 
 import modelo.Enfermera;
+import modelo.EnfermeraNoEncontradaException;
 import modelo.EstadoTurno;
 import modelo.TipoTurno;
 import modelo.Turno;
+import modelo.TurnoException;
 import persistencia.PersistenciaCSV;
 
 /**
@@ -76,9 +78,6 @@ public class GestorHospital {
 
     /**
      * Agrega una enfermera previamente creada.
-     *
-     * @param nuevaEnfermera enfermera que se desea registrar.
-     * @return true si fue agregada correctamente.
      */
     public boolean agregarEnfermera(Enfermera nuevaEnfermera) {
         if (nuevaEnfermera == null) {
@@ -97,11 +96,6 @@ public class GestorHospital {
 
     /**
      * Sobrecarga que permite registrar una enfermera utilizando sus datos.
-     *
-     * @param rut RUT de la enfermera.
-     * @param nombre nombre de la enfermera.
-     * @param especialidad especialidad de la enfermera.
-     * @return true si fue agregada correctamente.
      */
     public boolean agregarEnfermera(String rut, String nombre, String especialidad) {
         if (!esTextoValido(rut)
@@ -121,8 +115,6 @@ public class GestorHospital {
 
     /**
      * Retorna todas las enfermeras registradas.
-     *
-     * @return lista de enfermeras.
      */
     public List<Enfermera> obtenerEnfermeras() {
         return new ArrayList<>(mapaEnfermeras.values());
@@ -130,9 +122,6 @@ public class GestorHospital {
 
     /**
      * Busca una enfermera mediante su RUT.
-     *
-     * @param rut RUT que se desea buscar.
-     * @return enfermera encontrada o null.
      */
     public Enfermera buscarEnfermera(String rut) {
         if (!esTextoValido(rut)) {
@@ -144,9 +133,6 @@ public class GestorHospital {
 
     /**
      * Elimina una enfermera mediante su RUT.
-     *
-     * @param rut RUT de la enfermera.
-     * @return true si fue eliminada.
      */
     public boolean eliminarEnfermera(String rut) {
         if (!esTextoValido(rut)) {
@@ -158,11 +144,6 @@ public class GestorHospital {
 
     /**
      * Modifica los datos de una enfermera existente.
-     *
-     * @param rut RUT de la enfermera.
-     * @param nuevoNombre nuevo nombre.
-     * @param nuevaEspecialidad nueva especialidad.
-     * @return true si fue modificada.
      */
     public boolean modificarEnfermera(
             String rut,
@@ -189,9 +170,6 @@ public class GestorHospital {
 
     /**
      * Busca enfermeras según su especialidad.
-     *
-     * @param especialidad especialidad buscada.
-     * @return lista con las coincidencias.
      */
     public List<Enfermera> buscarPorEspecialidad(String especialidad) {
         List<Enfermera> resultado = new ArrayList<>();
@@ -214,17 +192,17 @@ public class GestorHospital {
     /**
      * Asigna un nuevo turno a una enfermera.
      *
-     * @param rut RUT de la enfermera.
-     * @param idTurno identificador del turno.
-     * @param fecha fecha del turno.
-     * @param tipo tipo de turno.
-     * @return true si el turno fue asignado.
+     * @throws EnfermeraNoEncontradaException si el RUT no corresponde
+     * a una enfermera registrada.
+     * @throws TurnoException si el ID del turno ya está asignado
+     * a la enfermera.
      */
     public boolean agregarTurno(
             String rut,
             String idTurno,
             String fecha,
-            TipoTurno tipo) {
+            TipoTurno tipo)
+            throws EnfermeraNoEncontradaException, TurnoException {
 
         if (!esTextoValido(rut)
                 || !esTextoValido(idTurno)
@@ -236,11 +214,16 @@ public class GestorHospital {
         Enfermera enfermera = buscarEnfermera(rut);
 
         if (enfermera == null) {
-            return false;
+            throw new EnfermeraNoEncontradaException(
+                    "No existe una enfermera registrada con el RUT " + rut + "."
+            );
         }
 
         if (buscarTurnoDeEnfermera(rut, idTurno) != null) {
-            return false;
+            throw new TurnoException(
+                    "Ya existe el turno " + idTurno
+                    + " para la enfermera indicada."
+            );
         }
 
         Turno nuevoTurno = new Turno(
@@ -260,10 +243,6 @@ public class GestorHospital {
 
     /**
      * Busca un turno perteneciente a una enfermera.
-     *
-     * @param rut RUT de la enfermera.
-     * @param idTurno identificador del turno.
-     * @return turno encontrado o null.
      */
     public Turno buscarTurnoDeEnfermera(String rut, String idTurno) {
         if (!esTextoValido(rut) || !esTextoValido(idTurno)) {
@@ -288,11 +267,12 @@ public class GestorHospital {
     /**
      * Elimina un turno perteneciente a una enfermera.
      *
-     * @param rut RUT de la enfermera.
-     * @param idTurno identificador del turno.
-     * @return true si el turno fue eliminado.
+     * @throws EnfermeraNoEncontradaException si la enfermera no existe.
+     * @throws TurnoException si el turno no existe.
      */
-    public boolean eliminarTurno(String rut, String idTurno) {
+    public boolean eliminarTurno(String rut, String idTurno)
+            throws EnfermeraNoEncontradaException, TurnoException {
+
         if (!esTextoValido(rut) || !esTextoValido(idTurno)) {
             return false;
         }
@@ -300,13 +280,18 @@ public class GestorHospital {
         Enfermera enfermera = buscarEnfermera(rut);
 
         if (enfermera == null) {
-            return false;
+            throw new EnfermeraNoEncontradaException(
+                    "No existe una enfermera registrada con el RUT " + rut + "."
+            );
         }
 
         Turno turno = buscarTurnoDeEnfermera(rut, idTurno);
 
         if (turno == null) {
-            return false;
+            throw new TurnoException(
+                    "No existe el turno " + idTurno
+                    + " para la enfermera indicada."
+            );
         }
 
         return enfermera.getTurnosAsignados().remove(turno);
@@ -315,30 +300,40 @@ public class GestorHospital {
     /**
      * Modifica los datos principales de un turno.
      *
-     * @param rut RUT de la enfermera.
-     * @param idTurno identificador del turno.
-     * @param nuevaFecha nueva fecha.
-     * @param nuevoTipo nuevo tipo.
-     * @param nuevoEstado nuevo estado.
-     * @return true si el turno fue modificado.
+     * @throws EnfermeraNoEncontradaException si la enfermera no existe.
+     * @throws TurnoException si el turno no existe.
      */
     public boolean modificarTurno(
             String rut,
             String idTurno,
             String nuevaFecha,
             TipoTurno nuevoTipo,
-            EstadoTurno nuevoEstado) {
+            EstadoTurno nuevoEstado)
+            throws EnfermeraNoEncontradaException, TurnoException {
 
-        if (!esTextoValido(nuevaFecha)
+        if (!esTextoValido(rut)
+                || !esTextoValido(idTurno)
+                || !esTextoValido(nuevaFecha)
                 || nuevoTipo == null
                 || nuevoEstado == null) {
             return false;
         }
 
+        Enfermera enfermera = buscarEnfermera(rut);
+
+        if (enfermera == null) {
+            throw new EnfermeraNoEncontradaException(
+                    "No existe una enfermera registrada con el RUT " + rut + "."
+            );
+        }
+
         Turno turno = buscarTurnoDeEnfermera(rut, idTurno);
 
         if (turno == null) {
-            return false;
+            throw new TurnoException(
+                    "No existe el turno " + idTurno
+                    + " para la enfermera indicada."
+            );
         }
 
         turno.setFecha(nuevaFecha.trim());
@@ -350,10 +345,6 @@ public class GestorHospital {
 
     /**
      * Busca enfermeras disponibles para una especialidad y fecha.
-     *
-     * @param especialidad especialidad requerida.
-     * @param fecha fecha que se desea consultar.
-     * @return lista de enfermeras disponibles.
      */
     public List<Enfermera> buscarEnfermerasDisponibles(
             String especialidad,

@@ -16,8 +16,8 @@ public class MenuConsola {
     private Scanner scanner;
 
     public MenuConsola(ControladorConsola controlador, Scanner scanner) {
-    this.controlador = controlador;
-    this.scanner = scanner;
+        this.controlador = controlador;
+        this.scanner = scanner;
     }
 
     /**
@@ -122,9 +122,7 @@ public class MenuConsola {
         String especialidad = leerTexto("Especialidad: ");
 
         boolean agregada = controlador.agregarEnfermera(
-                rut,
-                nombre,
-                especialidad
+                rut, nombre, especialidad
         );
 
         if (agregada) {
@@ -172,7 +170,6 @@ public class MenuConsola {
         System.out.println("--- MODIFICAR ENFERMERA ---");
 
         String rut = leerTexto("RUT: ");
-
         Enfermera enfermera = controlador.buscarEnfermera(rut);
 
         if (enfermera == null) {
@@ -187,9 +184,7 @@ public class MenuConsola {
         String especialidad = leerTexto("Nueva especialidad: ");
 
         boolean modificada = controlador.modificarEnfermera(
-                rut,
-                nombre,
-                especialidad
+                rut, nombre, especialidad
         );
 
         if (modificada) {
@@ -224,17 +219,16 @@ public class MenuConsola {
         String tipo = leerTexto("Tipo: ");
 
         boolean asignado = controlador.agregarTurno(
-                rut,
-                idTurno,
-                fecha,
-                tipo
+                rut, idTurno, fecha, tipo
         );
 
         if (asignado) {
             System.out.println("Turno asignado correctamente.");
+        } else if (!controlador.getUltimoError().isEmpty()) {
+            System.out.println("Error: " + controlador.getUltimoError());
         } else {
             System.out.println("No se pudo asignar el turno.");
-            System.out.println("Verifique la enfermera, el ID y el tipo ingresado.");
+            System.out.println("Verifique los datos ingresados.");
         }
     }
 
@@ -305,18 +299,16 @@ public class MenuConsola {
         String estado = leerTexto("Nuevo estado: ");
 
         boolean modificado = controlador.modificarTurno(
-                rut,
-                idTurno,
-                fecha,
-                tipo,
-                estado
+                rut, idTurno, fecha, tipo, estado
         );
 
         if (modificado) {
             System.out.println("Turno modificado correctamente.");
+        } else if (!controlador.getUltimoError().isEmpty()) {
+            System.out.println("Error: " + controlador.getUltimoError());
         } else {
             System.out.println("No se pudo modificar el turno.");
-            System.out.println("Verifique el tipo y estado ingresados.");
+            System.out.println("Verifique los datos ingresados.");
         }
     }
 
@@ -329,8 +321,10 @@ public class MenuConsola {
 
         if (controlador.eliminarTurno(rut, idTurno)) {
             System.out.println("Turno eliminado correctamente.");
+        } else if (!controlador.getUltimoError().isEmpty()) {
+            System.out.println("Error: " + controlador.getUltimoError());
         } else {
-            System.out.println("No se encontró el turno.");
+            System.out.println("No se pudo eliminar el turno.");
         }
     }
 
@@ -339,7 +333,6 @@ public class MenuConsola {
         System.out.println("--- BUSCAR POR ESPECIALIDAD ---");
 
         String especialidad = leerTexto("Especialidad: ");
-
         List<Enfermera> resultado =
                 controlador.buscarPorEspecialidad(especialidad);
 
@@ -361,10 +354,7 @@ public class MenuConsola {
         String fecha = leerTexto("Fecha: ");
 
         List<Enfermera> disponibles =
-                controlador.buscarEnfermerasDisponibles(
-                        especialidad,
-                        fecha
-                );
+                controlador.buscarEnfermerasDisponibles(especialidad, fecha);
 
         if (disponibles.isEmpty()) {
             System.out.println("No hay enfermeras disponibles.");

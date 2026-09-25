@@ -89,29 +89,14 @@ public class VentanaPrincipal extends JFrame {
 
         GridBagConstraints gbc = crearRestricciones();
 
-        agregarCampo(
-                formulario,
-                gbc,
-                0,
-                "RUT:",
-                txtRut = new JTextField()
-        );
+        agregarCampo(formulario, gbc, 0, "RUT:",
+                txtRut = new JTextField());
 
-        agregarCampo(
-                formulario,
-                gbc,
-                1,
-                "Nombre:",
-                txtNombre = new JTextField()
-        );
+        agregarCampo(formulario, gbc, 1, "Nombre:",
+                txtNombre = new JTextField());
 
-        agregarCampo(
-                formulario,
-                gbc,
-                2,
-                "Especialidad:",
-                txtEspecialidad = new JTextField()
-        );
+        agregarCampo(formulario, gbc, 2, "Especialidad:",
+                txtEspecialidad = new JTextField());
 
         panel.add(formulario, BorderLayout.CENTER);
 
@@ -151,29 +136,14 @@ public class VentanaPrincipal extends JFrame {
 
         GridBagConstraints gbc = crearRestricciones();
 
-        agregarCampo(
-                formulario,
-                gbc,
-                0,
-                "RUT Enfermera:",
-                txtRutTurno = new JTextField()
-        );
+        agregarCampo(formulario, gbc, 0, "RUT Enfermera:",
+                txtRutTurno = new JTextField());
 
-        agregarCampo(
-                formulario,
-                gbc,
-                1,
-                "ID Turno:",
-                txtIdTurno = new JTextField()
-        );
+        agregarCampo(formulario, gbc, 1, "ID Turno:",
+                txtIdTurno = new JTextField());
 
-        agregarCampo(
-                formulario,
-                gbc,
-                2,
-                "Fecha:",
-                txtFechaTurno = new JTextField()
-        );
+        agregarCampo(formulario, gbc, 2, "Fecha:",
+                txtFechaTurno = new JTextField());
 
         gbc.gridx = 0;
         gbc.gridy = 3;
@@ -277,9 +247,7 @@ public class VentanaPrincipal extends JFrame {
             }
         } else {
             if (controlador.modificarEnfermera(
-                    rut,
-                    nombre,
-                    especialidad)) {
+                    rut, nombre, especialidad)) {
 
                 mostrarMensaje("Enfermera modificada correctamente.");
                 limpiarCamposEnfermera();
@@ -326,8 +294,7 @@ public class VentanaPrincipal extends JFrame {
             texto.append("No existen enfermeras registradas.");
         } else {
             for (Enfermera enfermera : enfermeras) {
-                texto.append(enfermera.obtenerIdentificacion())
-                        .append("\n");
+                texto.append(enfermera.obtenerIdentificacion()).append("\n");
             }
         }
 
@@ -370,19 +337,18 @@ public class VentanaPrincipal extends JFrame {
         }
 
         boolean asignado = controlador.agregarTurno(
-                rut,
-                idTurno,
-                fecha,
-                tipo
+                rut, idTurno, fecha, tipo
         );
 
         if (asignado) {
             mostrarMensaje("Turno asignado correctamente.");
             limpiarCamposTurno();
+        } else if (!controlador.getUltimoError().isEmpty()) {
+            mostrarMensaje(controlador.getUltimoError());
         } else {
             mostrarMensaje(
                     "No se pudo asignar el turno. "
-                    + "Verifique la enfermera o el ID del turno."
+                    + "Verifique los datos ingresados."
             );
         }
     }
@@ -397,15 +363,11 @@ public class VentanaPrincipal extends JFrame {
 
         for (Enfermera enfermera : enfermeras) {
             if (!enfermera.getTurnosAsignados().isEmpty()) {
-                texto.append("\n")
-                        .append(enfermera.obtenerIdentificacion())
-                        .append("\n");
+                texto.append("\n");
+                texto.append(enfermera.obtenerIdentificacion()).append("\n");
 
                 for (Turno turno : enfermera.getTurnosAsignados()) {
-                    texto.append("  ")
-                            .append(turno)
-                            .append("\n");
-
+                    texto.append("  ").append(turno).append("\n");
                     existenTurnos = true;
                 }
             }
@@ -455,17 +417,15 @@ public class VentanaPrincipal extends JFrame {
         }
 
         boolean modificado = controlador.modificarTurno(
-                rut,
-                idTurno,
-                fecha,
-                tipo,
-                estado
+                rut, idTurno, fecha, tipo, estado
         );
 
         if (modificado) {
             mostrarMensaje("Turno modificado correctamente.");
+        } else if (!controlador.getUltimoError().isEmpty()) {
+            mostrarMensaje(controlador.getUltimoError());
         } else {
-            mostrarMensaje("No se encontró el turno.");
+            mostrarMensaje("No se pudo modificar el turno.");
         }
     }
 
@@ -492,8 +452,10 @@ public class VentanaPrincipal extends JFrame {
         if (controlador.eliminarTurno(rut, idTurno)) {
             mostrarMensaje("Turno eliminado correctamente.");
             limpiarCamposTurno();
+        } else if (!controlador.getUltimoError().isEmpty()) {
+            mostrarMensaje(controlador.getUltimoError());
         } else {
-            mostrarMensaje("No se encontró el turno.");
+            mostrarMensaje("No se pudo eliminar el turno.");
         }
     }
 
@@ -517,8 +479,7 @@ public class VentanaPrincipal extends JFrame {
             texto.append("No se encontraron enfermeras.");
         } else {
             for (Enfermera enfermera : resultado) {
-                texto.append(enfermera.obtenerIdentificacion())
-                        .append("\n");
+                texto.append(enfermera.obtenerIdentificacion()).append("\n");
             }
         }
 
@@ -559,8 +520,7 @@ public class VentanaPrincipal extends JFrame {
             texto.append("No hay enfermeras disponibles.");
         } else {
             for (Enfermera enfermera : disponibles) {
-                texto.append(enfermera.obtenerIdentificacion())
-                        .append("\n");
+                texto.append(enfermera.obtenerIdentificacion()).append("\n");
             }
         }
 
