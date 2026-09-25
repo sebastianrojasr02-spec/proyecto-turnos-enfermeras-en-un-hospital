@@ -1,9 +1,10 @@
 package modelo;
 
-import java.io.Serializable;
+/**
+ * Representa un administrador del hospital.
+ */
+public class Administrador extends Trabajador {
 
-public class Administrador extends Trabajador implements Serializable {
-    private static final long serialVersionUID = 1L;
     private String cargo;
 
     public Administrador() {
@@ -24,8 +25,12 @@ public class Administrador extends Trabajador implements Serializable {
         this.cargo = cargo;
     }
 
+    /**
+     * Implementa la identificación específica de un administrador.
+     */
     @Override
     public String obtenerIdentificacion() {
-        return "Administrador [" + getRut() + "] - " + getNombre();
+        return "Administrador [" + getRut() + "] - "
+                + getNombre() + " (" + cargo + ")";
     }
 }

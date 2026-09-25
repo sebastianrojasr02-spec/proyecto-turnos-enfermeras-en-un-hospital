@@ -1,17 +1,17 @@
 package modelo;
 
-import java.io.Serializable;
+/**
+ * Representa los datos y comportamientos comunes de los trabajadores
+ * que forman parte del sistema del hospital.
+ */
+public abstract class Trabajador {
 
-public abstract class Trabajador implements Serializable {
-    private static final long serialVersionUID = 1L;
     private String rut;
     private String nombre;
 
-    // Constructor por defecto
     public Trabajador() {
     }
 
-    // Constructor parametrizado
     public Trabajador(String rut, String nombre) {
         this.rut = rut;
         this.nombre = nombre;
@@ -33,7 +33,9 @@ public abstract class Trabajador implements Serializable {
         this.nombre = nombre;
     }
 
-    // Firma abstracta requerida para el polimorfismo SIA-6
+    /**
+     * Retorna una identificación descriptiva según el tipo de trabajador.
+     */
     public abstract String obtenerIdentificacion();
 
     @Override

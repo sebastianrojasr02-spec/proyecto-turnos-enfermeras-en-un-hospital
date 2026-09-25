@@ -1,8 +1,9 @@
 package modelo;
 
-import java.io.Serializable;
-
-public enum EstadoTurno implements Serializable {
+/**
+ * Estados posibles de un turno.
+ */
+public enum EstadoTurno {
     PENDIENTE,
     CONFIRMADO,
     CANCELADO,

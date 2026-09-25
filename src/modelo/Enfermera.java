@@ -1,23 +1,22 @@
 package modelo;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Enfermera extends Trabajador implements Serializable {
-    private static final long serialVersionUID = 1L;
+/**
+ * Representa una enfermera del hospital y los turnos que tiene asignados.
+ */
+public class Enfermera extends Trabajador {
 
     private String especialidad;
     private List<Turno> turnosAsignados;
 
-    // Constructor por defecto
     public Enfermera() {
         super();
         this.especialidad = "General";
         this.turnosAsignados = new ArrayList<>();
     }
 
-    // Constructor con parámetros
     public Enfermera(String rut, String nombre, String especialidad) {
         super(rut, nombre);
         this.especialidad = especialidad;
@@ -37,39 +36,53 @@ public class Enfermera extends Trabajador implements Serializable {
     }
 
     public void setTurnosAsignados(List<Turno> turnosAsignados) {
-        this.turnosAsignados = turnosAsignados;
+        if (turnosAsignados == null) {
+            this.turnosAsignados = new ArrayList<>();
+        } else {
+            this.turnosAsignados = turnosAsignados;
+        }
     }
 
-    // SIA-5: Sobrecarga
-
+    /**
+     * Agrega un turno previamente creado a la enfermera.
+     */
     public void agregarTurno(Turno turno) {
-        this.turnosAsignados.add(turno);
+        if (turno != null) {
+            turnosAsignados.add(turno);
+        }
     }
 
+    /**
+     * Sobrecarga que permite crear y agregar un turno mediante sus datos básicos.
+     */
     public void agregarTurno(String idTurno, String fecha, String tipo) {
+        TipoTurno tipoTurno = convertirTipoTurno(tipo);
 
-        TipoTurno tipoTurno = TipoTurno.MANANA;
+        Turno nuevoTurno = new Turno(idTurno, fecha, tipoTurno,
+                EstadoTurno.PENDIENTE, "00:00", "00:00",
+                "Sin asignar", "Sin observaciones");
 
-        if (tipo.equalsIgnoreCase("Tarde")) {
-            tipoTurno = TipoTurno.TARDE;
-        } else if (tipo.equalsIgnoreCase("Noche")) {
-            tipoTurno = TipoTurno.NOCHE;
+        agregarTurno(nuevoTurno);
+    }
+
+    /**
+     * Convierte el nombre de un tipo de turno al valor correspondiente del enum.
+     */
+    private TipoTurno convertirTipoTurno(String tipo) {
+        if (tipo != null && tipo.equalsIgnoreCase("Tarde")) {
+            return TipoTurno.TARDE;
         }
 
-        Turno nuevoTurno = new Turno(
-                idTurno,
-                fecha,
-                tipoTurno,
-                EstadoTurno.PENDIENTE,
-                "00:00",
-                "00:00",
-                "Sin asignar",
-                "Sin observaciones"
-        );
+        if (tipo != null && tipo.equalsIgnoreCase("Noche")) {
+            return TipoTurno.NOCHE;
+        }
 
-        this.turnosAsignados.add(nuevoTurno);
+        return TipoTurno.MANANA;
     }
 
+    /**
+     * Implementa la identificación específica de una enfermera.
+     */
     @Override
     public String obtenerIdentificacion() {
         return "Enfermera [" + getRut() + "] - "

@@ -1,8 +1,9 @@
 package modelo;
 
-import java.io.Serializable;
-
-public enum TipoTurno implements Serializable {
+/**
+ * Tipos de turno disponibles para una enfermera.
+ */
+public enum TipoTurno {
     MANANA,
     TARDE,
     NOCHE

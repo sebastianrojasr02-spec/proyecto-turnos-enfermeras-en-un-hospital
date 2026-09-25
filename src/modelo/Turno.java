@@ -1,12 +1,10 @@
 package modelo;
 
-import java.io.Serializable;
-
 /**
- * Representa un turno de trabajo en el hospital.
+ * Representa un turno de trabajo asignable a una enfermera.
+ * Contiene la información del turno y permite modificar su estado.
  */
-public class Turno implements Serializable {
-    private static final long serialVersionUID = 1L;
+public class Turno {
 
     private String idTurno;
     private String fecha;
@@ -17,7 +15,6 @@ public class Turno implements Serializable {
     private String sector;
     private String observaciones;
 
-    // Constructor por defecto
     public Turno() {
         this.idTurno = "Sin ID";
         this.fecha = "00-00-0000";
@@ -29,11 +26,9 @@ public class Turno implements Serializable {
         this.observaciones = "Sin observaciones";
     }
 
-    // Constructor con parámetros
     public Turno(String idTurno, String fecha, TipoTurno tipo,
-                 EstadoTurno estado, String horaInicio, String horaFin,
-                 String sector, String observaciones) {
-
+            EstadoTurno estado, String horaInicio, String horaFin,
+            String sector, String observaciones) {
         this.idTurno = idTurno;
         this.fecha = fecha;
         this.tipo = tipo;
@@ -108,16 +103,25 @@ public class Turno implements Serializable {
         this.observaciones = observaciones;
     }
 
+    /**
+     * Cambia el estado del turno a confirmado.
+     */
     public void confirmar() {
-        this.estado = EstadoTurno.CONFIRMADO;
+        estado = EstadoTurno.CONFIRMADO;
     }
 
+    /**
+     * Cambia el estado del turno a cancelado.
+     */
     public void cancelar() {
-        this.estado = EstadoTurno.CANCELADO;
+        estado = EstadoTurno.CANCELADO;
     }
 
+    /**
+     * Cambia el estado del turno a completado.
+     */
     public void completar() {
-        this.estado = EstadoTurno.COMPLETADO;
+        estado = EstadoTurno.COMPLETADO;
     }
 
     @Override
