@@ -32,15 +32,22 @@ public class Enfermera extends Trabajador {
     }
 
     public List<Turno> getTurnosAsignados() {
-        return turnosAsignados;
+        return new ArrayList<>(turnosAsignados);
     }
 
     public void setTurnosAsignados(List<Turno> turnosAsignados) {
         if (turnosAsignados == null) {
             this.turnosAsignados = new ArrayList<>();
         } else {
-            this.turnosAsignados = turnosAsignados;
+            this.turnosAsignados = new ArrayList<>(turnosAsignados);
         }
+    }
+
+    /**
+     * Elimina un turno perteneciente a esta enfermera.
+     */
+    public boolean eliminarTurno(Turno turno) {
+        return turno != null && turnosAsignados.remove(turno);
     }
 
     /**

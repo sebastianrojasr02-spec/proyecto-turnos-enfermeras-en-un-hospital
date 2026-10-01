@@ -294,7 +294,7 @@ public class GestorHospital {
             );
         }
 
-        return enfermera.getTurnosAsignados().remove(turno);
+        return enfermera.eliminarTurno(turno);
     }
 
     /**
