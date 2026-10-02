@@ -7,34 +7,37 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
 import modelo.Enfermera;
 import modelo.EstadoTurno;
 import modelo.TipoTurno;
 import modelo.Turno;
 
 /**
- * Gestiona la carga y almacenamiento de los datos del hospital
- * utilizando un archivo CSV.
+ * Implementa la persistencia del hospital mediante un archivo CSV.
+ * Esta clase se limita a transformar datos entre objetos y registros CSV;
+ * no contiene reglas de negocio ni mensajes de interfaz.
  */
-public class PersistenciaCSV {
+public class PersistenciaCSV implements RepositorioHospital {
 
     private static final String ARCHIVO_DATOS = "datos_hospital.csv";
 
     /**
-     * Guarda las enfermeras y sus turnos en el archivo CSV.
+     * Guarda todas las enfermeras y sus turnos en el archivo CSV.
      *
      * @param enfermeras mapa de enfermeras que se desea almacenar.
+     * @return true si el archivo pudo escribirse completo.
      */
-    public void guardar(Map<String, Enfermera> enfermeras) {
+    @Override
+    public boolean guardar(Map<String, Enfermera> enfermeras) {
         if (enfermeras == null) {
-            return;
+            return false;
         }
 
-        try (PrintWriter escritor = new PrintWriter(new FileWriter(ARCHIVO_DATOS))) {
+        try (PrintWriter escritor = new PrintWriter(
+                new FileWriter(ARCHIVO_DATOS))) {
             escritor.println("rut,nombre,especialidad,idTurno,fecha,tipo,estado,"
                     + "horaInicio,horaFin,sector,observaciones");
 
@@ -42,19 +45,21 @@ public class PersistenciaCSV {
                 guardarEnfermera(escritor, enfermera);
             }
 
-            System.out.println("[SISTEMA] Datos guardados correctamente.");
+            return true;
         } catch (IOException e) {
-            System.err.println("[ERROR] No se pudieron guardar los datos: " + e.getMessage());
+            return false;
         }
     }
 
     /**
-     * Carga las enfermeras y sus turnos almacenados en el archivo CSV.
+     * Carga el estado almacenado en el CSV y reconstruye el modelo.
      *
-     * @return mapa con las enfermeras recuperadas desde el archivo.
+     * @return mapa con las enfermeras recuperadas; vacío cuando no existe
+     * el archivo o el contenido no puede reconstruirse.
      */
+    @Override
     public Map<String, Enfermera> cargar() {
-        Map<String, Enfermera> enfermeras = new HashMap<>();
+        Map<String, Enfermera> enfermeras = new LinkedHashMap<>();
         File archivo = new File(ARCHIVO_DATOS);
 
         if (!archivo.exists()) {
@@ -70,10 +75,7 @@ public class PersistenciaCSV {
                     procesarLinea(linea, enfermeras);
                 }
             }
-
-            System.out.println("[SISTEMA] Datos cargados correctamente.");
         } catch (IOException | IllegalArgumentException e) {
-            System.err.println("[ERROR] No se pudieron cargar los datos: " + e.getMessage());
             enfermeras.clear();
         }
 
@@ -81,21 +83,18 @@ public class PersistenciaCSV {
     }
 
     /**
-     * Indica si existe un archivo de datos previamente creado.
+     * Indica si existe un archivo de datos persistido.
      *
-     * @return true si el archivo existe.
+     * @return true cuando el CSV está presente.
      */
     public boolean existeArchivo() {
         return new File(ARCHIVO_DATOS).exists();
     }
 
-    /**
-     * Guarda una enfermera. Si posee turnos, genera una fila por cada turno.
-     */
     private void guardarEnfermera(PrintWriter escritor, Enfermera enfermera) {
         List<Turno> turnos = enfermera.getTurnosAsignados();
 
-        if (turnos == null || turnos.isEmpty()) {
+        if (turnos.isEmpty()) {
             escritor.println(crearDatosEnfermera(enfermera));
             return;
         }
@@ -105,9 +104,6 @@ public class PersistenciaCSV {
         }
     }
 
-    /**
-     * Procesa una fila del CSV y crea los objetos correspondientes.
-     */
     private void procesarLinea(String linea, Map<String, Enfermera> enfermeras) {
         String[] datos = separarCSV(linea);
 
@@ -115,10 +111,9 @@ public class PersistenciaCSV {
             return;
         }
 
-        String rut = datos[0];
-        String nombre = datos[1];
-        String especialidad = datos[2];
-
+        String rut = datos[0].trim();
+        String nombre = datos[1].trim();
+        String especialidad = datos[2].trim();
         Enfermera enfermera = enfermeras.get(rut);
 
         if (enfermera == null) {
@@ -127,40 +122,39 @@ public class PersistenciaCSV {
         }
 
         if (datos.length >= 11 && !datos[3].trim().isEmpty()) {
-            Turno turno = crearTurno(datos);
-            enfermera.agregarTurno(turno);
+            enfermera.agregarTurno(crearTurno(datos));
         }
     }
 
-    /**
-     * Crea un turno utilizando los campos obtenidos desde una fila CSV.
-     */
     private Turno crearTurno(String[] datos) {
-        return new Turno(
-                datos[3],
-                datos[4],
-                TipoTurno.valueOf(datos[5]),
-                EstadoTurno.valueOf(datos[6]),
-                datos[7],
-                datos[8],
-                datos[9],
-                datos[10]
+        TipoTurno tipo = TipoTurno.valueOf(datos[5].trim());
+        Turno turno = new Turno(
+                datos[3].trim(),
+                datos[4].trim(),
+                tipo,
+                EstadoTurno.valueOf(datos[6].trim()),
+                datos[7].trim(),
+                datos[8].trim(),
+                datos[9].trim(),
+                datos[10].trim()
         );
+
+        // Compatibilidad con registros creados por versiones anteriores,
+        // donde los turnos nuevos podían guardarse como 00:00 - 00:00.
+        if ("00:00".equals(turno.getHoraInicio())
+                && "00:00".equals(turno.getHoraFin())) {
+            turno.setTipo(tipo);
+        }
+
+        return turno;
     }
 
-    /**
-     * Genera la representación CSV de una enfermera sin turnos.
-     */
     private String crearDatosEnfermera(Enfermera enfermera) {
         return convertirCSV(enfermera.getRut()) + ","
                 + convertirCSV(enfermera.getNombre()) + ","
-                + convertirCSV(enfermera.getEspecialidad())
-                + ",,,,,,,,";
+                + convertirCSV(enfermera.getEspecialidad()) + ",,,,,,,,";
     }
 
-    /**
-     * Genera la representación CSV de una enfermera junto con uno de sus turnos.
-     */
     private String crearDatosTurno(Enfermera enfermera, Turno turno) {
         return convertirCSV(enfermera.getRut()) + ","
                 + convertirCSV(enfermera.getNombre()) + ","
@@ -175,9 +169,6 @@ public class PersistenciaCSV {
                 + convertirCSV(turno.getObservaciones());
     }
 
-    /**
-     * Escapa un texto para almacenarlo correctamente en formato CSV.
-     */
     private String convertirCSV(String texto) {
         if (texto == null) {
             return "";
@@ -186,9 +177,6 @@ public class PersistenciaCSV {
         return "\"" + texto.replace("\"", "\"\"") + "\"";
     }
 
-    /**
-     * Separa una fila CSV respetando campos encerrados entre comillas.
-     */
     private String[] separarCSV(String linea) {
         List<String> campos = new ArrayList<>();
         StringBuilder campo = new StringBuilder();

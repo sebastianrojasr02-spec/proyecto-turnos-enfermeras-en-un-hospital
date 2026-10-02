@@ -1,6 +1,7 @@
 package vista;
 
 import controlador.ControladorVentana;
+import java.util.Map;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -49,7 +50,7 @@ public class VentanaPrincipal extends JFrame {
         this.controlador = controlador;
 
         setTitle("Sistema de Gestión Hospitalaria");
-        setSize(800, 650);
+        setSize(820, 680);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -100,17 +101,19 @@ public class VentanaPrincipal extends JFrame {
 
         panel.add(formulario, BorderLayout.CENTER);
 
-        JPanel botones = new JPanel(new GridLayout(2, 2, 10, 10));
+        JPanel botones = new JPanel(new GridLayout(2, 3, 10, 10));
 
         JButton btnAgregar = new JButton("Agregar / Modificar");
         JButton btnEliminar = new JButton("Eliminar");
         JButton btnMostrar = new JButton("Mostrar Enfermeras");
         JButton btnBuscar = new JButton("Buscar Enfermera");
+        JButton btnCarga = new JButton("Ver Carga Horaria");
 
         botones.add(btnAgregar);
         botones.add(btnEliminar);
         botones.add(btnMostrar);
         botones.add(btnBuscar);
+        botones.add(btnCarga);
 
         panel.add(botones, BorderLayout.SOUTH);
 
@@ -118,6 +121,7 @@ public class VentanaPrincipal extends JFrame {
         btnEliminar.addActionListener(e -> eliminarEnfermera());
         btnMostrar.addActionListener(e -> mostrarEnfermeras());
         btnBuscar.addActionListener(e -> buscarEnfermera());
+        btnCarga.addActionListener(e -> mostrarCargaHoraria());
 
         return panel;
     }
@@ -294,7 +298,7 @@ public class VentanaPrincipal extends JFrame {
             texto.append("No existen enfermeras registradas.");
         } else {
             for (Enfermera enfermera : enfermeras) {
-                texto.append(enfermera.obtenerIdentificacion()).append("\n");
+                texto.append(enfermera.toString()).append("\n");
             }
         }
 
@@ -321,7 +325,7 @@ public class VentanaPrincipal extends JFrame {
 
         mostrarResultado(
                 "Enfermera encontrada:\n\n"
-                + enfermera.obtenerIdentificacion()
+                + enfermera.toString()
         );
     }
 
@@ -354,30 +358,40 @@ public class VentanaPrincipal extends JFrame {
     }
 
     private void mostrarTurnos() {
-        List<Enfermera> enfermeras = controlador.obtenerEnfermeras();
+        Map<Enfermera, List<Turno>> turnos =
+                controlador.obtenerTurnosPorEnfermera();
+        StringBuilder texto = new StringBuilder("--- TURNOS REGISTRADOS ---\n");
 
-        StringBuilder texto = new StringBuilder();
-        texto.append("--- TURNOS REGISTRADOS ---\n");
-
-        boolean existenTurnos = false;
-
-        for (Enfermera enfermera : enfermeras) {
-            if (!enfermera.getTurnosAsignados().isEmpty()) {
-                texto.append("\n");
-                texto.append(enfermera.obtenerIdentificacion()).append("\n");
-
-                for (Turno turno : enfermera.getTurnosAsignados()) {
-                    texto.append("  ").append(turno).append("\n");
-                    existenTurnos = true;
-                }
-            }
-        }
-
-        if (!existenTurnos) {
+        if (turnos.isEmpty()) {
             texto.append("\nNo existen turnos registrados.");
+        } else {
+            turnos.forEach((enfermera, lista) -> {
+                texto.append("\n").append(enfermera).append("\n");
+                lista.forEach(turno ->
+                        texto.append("  ").append(turno).append("\n"));
+            });
         }
 
         mostrarResultado(texto.toString());
+    }
+
+    private void mostrarCargaHoraria() {
+        String rut = txtRut.getText().trim();
+
+        if (rut.isEmpty()) {
+            mostrarMensaje("Ingrese el RUT de la enfermera en el formulario.");
+            return;
+        }
+
+        double horas = controlador.calcularCargaHoraria(rut);
+        if (horas < 0) {
+            mostrarMensaje(controlador.getUltimoError());
+            return;
+        }
+
+        mostrarResultado(String.format(
+                "--- CARGA HORARIA ---\n\nRUT: %s\nHoras de turnos activos: %.1f",
+                rut, horas));
     }
 
     private void buscarTurno() {
@@ -479,7 +493,7 @@ public class VentanaPrincipal extends JFrame {
             texto.append("No se encontraron enfermeras.");
         } else {
             for (Enfermera enfermera : resultado) {
-                texto.append(enfermera.obtenerIdentificacion()).append("\n");
+                texto.append(enfermera.toString()).append("\n");
             }
         }
 
@@ -520,7 +534,7 @@ public class VentanaPrincipal extends JFrame {
             texto.append("No hay enfermeras disponibles.");
         } else {
             for (Enfermera enfermera : disponibles) {
-                texto.append(enfermera.obtenerIdentificacion()).append("\n");
+                texto.append(enfermera.toString()).append("\n");
             }
         }
 

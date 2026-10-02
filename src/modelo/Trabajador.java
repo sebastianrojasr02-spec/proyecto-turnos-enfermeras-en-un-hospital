@@ -1,18 +1,30 @@
 package modelo;
 
 /**
- * Representa los datos y comportamientos comunes de los trabajadores
- * que forman parte del sistema del hospital.
+ * Clase base para los trabajadores del hospital.
+ * Mantiene los datos comunes y define una operación polimórfica relacionada
+ * con la carga horaria que cada tipo de trabajador puede representar.
  */
 public abstract class Trabajador {
 
     private String rut;
     private String nombre;
 
-    public Trabajador() {
+    /**
+     * Construye un trabajador sin datos iniciales.
+     */
+    protected Trabajador() {
+        rut = "Sin RUT";
+        nombre = "Sin nombre";
     }
 
-    public Trabajador(String rut, String nombre) {
+    /**
+     * Construye un trabajador con sus datos básicos.
+     *
+     * @param rut identificador del trabajador.
+     * @param nombre nombre del trabajador.
+     */
+    protected Trabajador(String rut, String nombre) {
         this.rut = rut;
         this.nombre = nombre;
     }
@@ -34,12 +46,15 @@ public abstract class Trabajador {
     }
 
     /**
-     * Retorna una identificación descriptiva según el tipo de trabajador.
+     * Calcula la cantidad de horas de trabajo que representa el trabajador.
+     * La implementación depende del tipo concreto.
+     *
+     * @return cantidad de horas asociadas al trabajador.
      */
-    public abstract String obtenerIdentificacion();
+    public abstract double calcularCargaHoraria();
 
     @Override
     public String toString() {
-        return "RUT: " + rut + ", Nombre: " + nombre;
+        return "RUT: " + rut + " | Nombre: " + nombre;
     }
 }

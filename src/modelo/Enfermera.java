@@ -4,23 +4,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Representa una enfermera del hospital y los turnos que tiene asignados.
+ * Representa una enfermera y los turnos que tiene asignados.
  */
 public class Enfermera extends Trabajador {
 
     private String especialidad;
     private List<Turno> turnosAsignados;
 
+    /**
+     * Construye una enfermera con valores por defecto.
+     */
     public Enfermera() {
         super();
-        this.especialidad = "General";
-        this.turnosAsignados = new ArrayList<>();
+        especialidad = "General";
+        turnosAsignados = new ArrayList<>();
     }
 
+    /**
+     * Construye una enfermera con sus datos básicos.
+     *
+     * @param rut identificador.
+     * @param nombre nombre completo.
+     * @param especialidad área de especialización.
+     */
     public Enfermera(String rut, String nombre, String especialidad) {
         super(rut, nombre);
         this.especialidad = especialidad;
-        this.turnosAsignados = new ArrayList<>();
+        turnosAsignados = new ArrayList<>();
     }
 
     public String getEspecialidad() {
@@ -31,27 +41,30 @@ public class Enfermera extends Trabajador {
         this.especialidad = especialidad;
     }
 
+    /**
+     * Entrega una copia de los turnos para preservar el encapsulamiento.
+     *
+     * @return copia de la colección interna.
+     */
     public List<Turno> getTurnosAsignados() {
         return new ArrayList<>(turnosAsignados);
     }
 
-    public void setTurnosAsignados(List<Turno> turnosAsignados) {
-        if (turnosAsignados == null) {
-            this.turnosAsignados = new ArrayList<>();
-        } else {
-            this.turnosAsignados = new ArrayList<>(turnosAsignados);
-        }
-    }
-
     /**
-     * Elimina un turno perteneciente a esta enfermera.
+     * Reemplaza la colección de turnos por una copia independiente.
+     *
+     * @param turnosAsignados nuevos turnos asociados.
      */
-    public boolean eliminarTurno(Turno turno) {
-        return turno != null && turnosAsignados.remove(turno);
+    public void setTurnosAsignados(List<Turno> turnosAsignados) {
+        this.turnosAsignados = turnosAsignados == null
+                ? new ArrayList<>()
+                : new ArrayList<>(turnosAsignados);
     }
 
     /**
-     * Agrega un turno previamente creado a la enfermera.
+     * Agrega un turno previamente construido.
+     *
+     * @param turno turno que será asociado.
      */
     public void agregarTurno(Turno turno) {
         if (turno != null) {
@@ -60,38 +73,99 @@ public class Enfermera extends Trabajador {
     }
 
     /**
-     * Sobrecarga que permite crear y agregar un turno mediante sus datos básicos.
+     * Sobrecarga que construye y agrega un turno a partir de datos básicos.
+     *
+     * @param idTurno identificador del turno.
+     * @param fecha fecha del turno.
+     * @param tipo texto con el tipo de turno.
+     * @throws IllegalArgumentException cuando el tipo no corresponde al enum.
      */
     public void agregarTurno(String idTurno, String fecha, String tipo) {
-        TipoTurno tipoTurno = convertirTipoTurno(tipo);
+        if (tipo == null) {
+            throw new IllegalArgumentException("El tipo de turno no puede ser nulo.");
+        }
 
-        Turno nuevoTurno = new Turno(idTurno, fecha, tipoTurno,
-                EstadoTurno.PENDIENTE, "00:00", "00:00",
-                "Sin asignar", "Sin observaciones");
-
+        TipoTurno tipoTurno = TipoTurno.valueOf(tipo.trim().toUpperCase());
+        Turno nuevoTurno = new Turno(
+                idTurno,
+                fecha,
+                tipoTurno,
+                EstadoTurno.PENDIENTE
+        );
         agregarTurno(nuevoTurno);
     }
 
     /**
-     * Convierte el nombre de un tipo de turno al valor correspondiente del enum.
+     * Busca un turno por su identificador dentro de esta enfermera.
+     *
+     * @param idTurno identificador que se desea buscar.
+     * @return turno encontrado o null cuando no existe.
      */
-    private TipoTurno convertirTipoTurno(String tipo) {
-        if (tipo != null && tipo.equalsIgnoreCase("Tarde")) {
-            return TipoTurno.TARDE;
+    public Turno buscarTurno(String idTurno) {
+        if (idTurno == null || idTurno.trim().isEmpty()) {
+            return null;
         }
 
-        if (tipo != null && tipo.equalsIgnoreCase("Noche")) {
-            return TipoTurno.NOCHE;
+        for (Turno turno : turnosAsignados) {
+            if (turno.getIdTurno().equalsIgnoreCase(idTurno.trim())) {
+                return turno;
+            }
         }
-
-        return TipoTurno.MANANA;
+        return null;
     }
 
     /**
-     * Implementa la identificación específica de una enfermera.
+     * Indica si la enfermera posee un turno activo en una fecha.
+     * Un turno cancelado no bloquea la disponibilidad.
+     *
+     * @param fecha fecha que se desea consultar.
+     * @return true cuando existe un turno activo ese día.
+     */
+    public boolean tieneTurnoActivoEnFecha(String fecha) {
+        if (fecha == null || fecha.trim().isEmpty()) {
+            return false;
+        }
+
+        for (Turno turno : turnosAsignados) {
+            if (turno.getFecha().equalsIgnoreCase(fecha.trim())
+                    && turno.esActivo()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Elimina un turno de la colección de esta enfermera.
+     *
+     * @param turno turno que se desea eliminar.
+     * @return true cuando el turno estaba presente y fue eliminado.
+     */
+    public boolean eliminarTurno(Turno turno) {
+        return turno != null && turnosAsignados.remove(turno);
+    }
+
+    /**
+     * Calcula las horas de los turnos no cancelados.
+     * Esta implementación concreta aporta el comportamiento polimórfico
+     * definido en Trabajador.
+     *
+     * @return horas de trabajo de sus turnos activos.
      */
     @Override
-    public String obtenerIdentificacion() {
+    public double calcularCargaHoraria() {
+        double horas = 0.0;
+
+        for (Turno turno : turnosAsignados) {
+            if (turno.esActivo()) {
+                horas += turno.calcularDuracionHoras();
+            }
+        }
+        return horas;
+    }
+
+    @Override
+    public String toString() {
         return "Enfermera [" + getRut() + "] - "
                 + getNombre() + " (" + especialidad + ")";
     }

@@ -1,10 +1,17 @@
 package modelo;
 
+import java.time.Duration;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+
 /**
  * Representa un turno de trabajo asignable a una enfermera.
- * Contiene la información del turno y permite modificar su estado.
  */
 public class Turno {
+
+    private static final DateTimeFormatter FORMATO_HORA =
+            DateTimeFormatter.ofPattern("HH:mm");
 
     private String idTurno;
     private String fecha;
@@ -15,17 +22,50 @@ public class Turno {
     private String sector;
     private String observaciones;
 
+    /**
+     * Construye un turno con valores por defecto.
+     */
     public Turno() {
-        this.idTurno = "Sin ID";
-        this.fecha = "00-00-0000";
-        this.tipo = TipoTurno.MANANA;
-        this.estado = EstadoTurno.PENDIENTE;
-        this.horaInicio = "00:00";
-        this.horaFin = "00:00";
+        idTurno = "Sin ID";
+        fecha = "00-00-0000";
+        tipo = TipoTurno.MANANA;
+        estado = EstadoTurno.PENDIENTE;
+        horaInicio = tipo.getHoraInicio();
+        horaFin = tipo.getHoraFin();
+        sector = "Sin asignar";
+        observaciones = "Sin observaciones";
+    }
+
+    /**
+     * Construye un turno usando el horario estándar definido por su tipo.
+     * Esta variante se utiliza cuando la interfaz entrega sólo los datos
+     * básicos de la jornada.
+     *
+     * @param idTurno identificador del turno.
+     * @param fecha fecha asignada.
+     * @param tipo tipo de jornada y fuente del horario estándar.
+     * @param estado estado inicial del turno.
+     */
+    public Turno(String idTurno, String fecha, TipoTurno tipo,
+            EstadoTurno estado) {
+        if (tipo == null) {
+            throw new IllegalArgumentException(
+                    "El tipo de turno no puede ser nulo.");
+        }
+
+        this.idTurno = idTurno;
+        this.fecha = fecha;
+        this.tipo = tipo;
+        this.estado = estado;
+        this.horaInicio = tipo.getHoraInicio();
+        this.horaFin = tipo.getHoraFin();
         this.sector = "Sin asignar";
         this.observaciones = "Sin observaciones";
     }
 
+    /**
+     * Construye un turno con todos sus datos.
+     */
     public Turno(String idTurno, String fecha, TipoTurno tipo,
             EstadoTurno estado, String horaInicio, String horaFin,
             String sector, String observaciones) {
@@ -60,7 +100,14 @@ public class Turno {
     }
 
     public void setTipo(TipoTurno tipo) {
+        if (tipo == null) {
+            throw new IllegalArgumentException(
+                    "El tipo de turno no puede ser nulo.");
+        }
+
         this.tipo = tipo;
+        this.horaInicio = tipo.getHoraInicio();
+        this.horaFin = tipo.getHoraFin();
     }
 
     public EstadoTurno getEstado() {
@@ -104,22 +151,47 @@ public class Turno {
     }
 
     /**
-     * Cambia el estado del turno a confirmado.
+     * Determina si el turno bloquea la disponibilidad de la enfermera.
+     *
+     * @return false para turnos cancelados y true para el resto.
      */
+    public boolean esActivo() {
+        return estado != EstadoTurno.CANCELADO;
+    }
+
+    /**
+     * Calcula la duración del turno considerando también turnos nocturnos
+     * que terminan al día siguiente.
+     *
+     * @return duración en horas.
+     * @throws IllegalStateException cuando una hora no tiene formato HH:mm.
+     */
+    public double calcularDuracionHoras() {
+        try {
+            LocalTime inicio = LocalTime.parse(horaInicio, FORMATO_HORA);
+            LocalTime fin = LocalTime.parse(horaFin, FORMATO_HORA);
+
+            long minutos = Duration.between(inicio, fin).toMinutes();
+
+            if (minutos < 0) {
+                minutos += 24 * 60;
+            }
+
+            return minutos / 60.0;
+        } catch (DateTimeParseException e) {
+            throw new IllegalStateException(
+                    "Las horas del turno deben usar el formato HH:mm.", e);
+        }
+    }
+
     public void confirmar() {
         estado = EstadoTurno.CONFIRMADO;
     }
 
-    /**
-     * Cambia el estado del turno a cancelado.
-     */
     public void cancelar() {
         estado = EstadoTurno.CANCELADO;
     }
 
-    /**
-     * Cambia el estado del turno a completado.
-     */
     public void completar() {
         estado = EstadoTurno.COMPLETADO;
     }

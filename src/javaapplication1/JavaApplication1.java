@@ -2,15 +2,14 @@ package javaapplication1;
 
 import controlador.ControladorConsola;
 import controlador.ControladorVentana;
-import controlador.GestorHospital;
 import java.util.Scanner;
 import javax.swing.SwingUtilities;
+import servicio.GestorHospital;
 import vista.MenuConsola;
 import vista.VentanaPrincipal;
 
 /**
- * Punto de entrada de la aplicación.
- * Permite seleccionar entre la interfaz de consola y la interfaz gráfica.
+ * Punto de entrada de la aplicación y selector de interfaz.
  */
 public class JavaApplication1 {
 
@@ -28,49 +27,29 @@ public class JavaApplication1 {
         System.out.print("Opción: ");
 
         String opcion = scanner.nextLine().trim();
-
         if (opcion.equals("1")) {
             iniciarConsola(gestor, scanner);
         } else if (opcion.equals("2")) {
             iniciarVentana(gestor);
         } else {
-            System.out.println();
-            System.out.println("Opción no válida.");
-            System.out.println("El programa finalizará.");
+            System.out.println("Opción no válida. El programa finalizará.");
         }
     }
 
-    /**
-     * Inicia la interfaz de consola.
-     */
     private static void iniciarConsola(
-            GestorHospital gestor,
-            Scanner scanner) {
-
-        ControladorConsola controlador =
-                new ControladorConsola(gestor);
-
-        MenuConsola menu =
-                new MenuConsola(controlador, scanner);
-
+            GestorHospital gestor, Scanner scanner) {
+        MenuConsola menu = new MenuConsola(
+                new ControladorConsola(gestor), scanner);
         menu.iniciar();
     }
 
-    /**
-     * Inicia la interfaz gráfica.
-     */
     private static void iniciarVentana(GestorHospital gestor) {
-        ControladorVentana controlador =
-                new ControladorVentana(gestor);
-
+        ControladorVentana controlador = new ControladorVentana(gestor);
         Runtime.getRuntime().addShutdownHook(
-                new Thread(() -> controlador.guardarDatos())
-        );
+                new Thread(controlador::guardarDatos));
 
         SwingUtilities.invokeLater(() -> {
-            VentanaPrincipal ventana =
-                    new VentanaPrincipal(controlador);
-
+            VentanaPrincipal ventana = new VentanaPrincipal(controlador);
             ventana.setVisible(true);
         });
     }
